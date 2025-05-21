@@ -1,5 +1,7 @@
 package proxy;
 
+import global.ConnectionData;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
@@ -10,20 +12,24 @@ import java.util.concurrent.Executors;
 
 public class Proxy {
     public static final int PORT = 12345;
-    private static final List<ClientData> clientList = Collections.synchronizedList(new ArrayList<>());
-    public static void main(String[] args) throws IOException {
+    private static final List<ConnectionData> clientList = Collections.synchronizedList(new ArrayList<>());
+    public static void main(String[] args) {
         ExecutorService pool = Executors.newFixedThreadPool(1000);
-        ServerSocket serverSocket = new ServerSocket(PORT);
 
-        ClientData server = new ClientData(serverSocket.accept());
-        pool.execute(new ProxyServerListener(server, clientList));
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+            ConnectionData server = new ConnectionData(serverSocket.accept());
+            pool.execute(new ProxyServerListener(server, clientList));
 
-        // TODO: LET THERE BE PROXY OR SERVER OR WHATEVER!!!
 
-        while (true) {
-            ClientData data = new ClientData(serverSocket.accept());
-            clientList.add(data);
-            pool.execute(new ProxyClientListener(data, server));
+            // TODO: LET THERE BE PROXY OR SERVER OR WHATEVER!!!
+
+            while (true) {
+                ConnectionData data = new ConnectionData(serverSocket.accept());
+                clientList.add(data);
+                pool.execute(new ProxyClientListener(data, server));
+            }
+        } catch (IOException e) {
+            System.err.println("UHHHHH OHHHHH!!!");
         }
     }
 }

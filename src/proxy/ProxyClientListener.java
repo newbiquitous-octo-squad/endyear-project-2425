@@ -1,28 +1,23 @@
 package proxy;
 
-import protocol.Message;
+import global.ConnectionData;
+import global.protocol.Message;
 
 public class ProxyClientListener extends AbstractProxyListener {
-    private ClientData server;
-    public ProxyClientListener(ClientData clientData, ClientData server) {
+    private ConnectionData server;
+    public ProxyClientListener(ConnectionData clientData, ConnectionData server) {
         super(clientData);
         this.server = server;
     }
 
     @Override
     public void run() {
-        while (true) {
-            try {
-                readMessage().ifPresent(message -> send(message, server));
-            } catch (Exception e) {
-                System.err.println("uh oh");
-                e.printStackTrace();
-            }
+        while (!isClosed) {
+            readMessage().ifPresent(this::send);
         }
     }
 
-    @Override
-    protected void send(Message m, ClientData receiver) {
+    protected void send(Message m) {
         super.send(m, server);
     }
 
