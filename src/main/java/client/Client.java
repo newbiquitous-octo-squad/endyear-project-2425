@@ -82,7 +82,6 @@ public class Client {
                     new ClientListener(new ConnectionData(new Socket(host, port)))
             ).start();
         } catch (Exception e) {
-            e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Failed to connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
