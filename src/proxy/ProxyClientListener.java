@@ -3,10 +3,12 @@ package proxy;
 import global.ConnectionData;
 import global.protocol.Message;
 
+import java.util.List;
+
 public class ProxyClientListener extends AbstractProxyListener {
     private ConnectionData server;
-    public ProxyClientListener(ConnectionData clientData, ConnectionData server) {
-        super(clientData);
+    public ProxyClientListener(ConnectionData clientData, ConnectionData server, List<ConnectionData> otherClientsList) {
+        super(clientData, otherClientsList);
         this.server = server;
     }
 
@@ -24,6 +26,6 @@ public class ProxyClientListener extends AbstractProxyListener {
 
     @Override
     public void onDisconnect() {
-        // TODO: HANDLE CLIENT DISCONNECT
+        clientList.remove(connectionData);
     }
 }

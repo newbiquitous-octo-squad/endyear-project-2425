@@ -6,10 +6,8 @@ import global.protocol.Message;
 import java.util.List;
 
 public class ProxyServerListener extends AbstractProxyListener {
-    private final List<ConnectionData> clientList;
     public ProxyServerListener(ConnectionData connectionData, List<ConnectionData> clientList) {
-        super(connectionData);
-        this.clientList = clientList;
+        super(connectionData, clientList);
     }
 
     public void broadcast(Message message) {

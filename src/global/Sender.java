@@ -11,9 +11,9 @@ import java.io.ObjectOutputStream;
 public interface Sender {
     static void send(Message m, ConnectionData receiver) {
         try (ObjectOutputStream out = receiver.getOutput()) {
-            System.out.println(receiver.getSocket().isClosed());
+            System.out.println("Sending message " + m.getClass());
             out.writeObject(m);                                  // TODO: SOMETIME HERE THE SOCKET CLOSES?? IDK WHY SOMEONE FIGURE THIS OUT
-            System.out.println(receiver.getSocket().isClosed());
+            out.flush();
         } catch (IOException e) {
             System.err.printf("FAILED TO SEND MESSAGE %s\n", m.getClass());
             System.out.println(e.getMessage());

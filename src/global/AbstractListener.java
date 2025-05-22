@@ -2,9 +2,7 @@ package global;
 
 import global.protocol.Message;
 
-import java.io.EOFException;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.Optional;
 
 public abstract class AbstractListener implements Runnable {
@@ -20,7 +18,10 @@ public abstract class AbstractListener implements Runnable {
 
     protected Optional<Message> readMessage() {
         try {
-            return Optional.of((Message) connectionData.getInput().readObject());
+            System.out.println("Reading message...");
+            Message out = (Message) connectionData.getInput().readObject();
+            System.out.println("Read message " + out.getClass());
+            return Optional.of(out);
         } catch (ClassNotFoundException e) {
             System.err.println("Invalid class.");
         } catch (IOException e) {

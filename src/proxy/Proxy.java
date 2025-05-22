@@ -26,7 +26,7 @@ public class Proxy {
             while (true) {
                 ConnectionData data = new ConnectionData(serverSocket.accept());
                 clientList.add(data);
-                pool.execute(new ProxyClientListener(data, server));
+                pool.execute(new ProxyClientListener(data, server, clientList));
             }
         } catch (IOException e) {
             System.err.println("UHHHHH OHHHHH!!!");
