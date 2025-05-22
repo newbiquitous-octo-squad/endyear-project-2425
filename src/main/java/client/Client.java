@@ -10,10 +10,9 @@ import javax.swing.*;
 public class Client {
     public static void main(String[] args) throws IOException {
 
-//        TODO: UNCOMMENT THIS ONCE THE SERVER SIDE IS FUNCTIONAL
-//        new Thread(
-//                new ClientListener(new ConnectionData(new Socket("localhost", 12345))) // obviously, change the host and port later
-//        ).start();
+        new Thread(
+                new ClientListener(new ConnectionData(new Socket("localhost", 12345))) // obviously, change the host and port later
+        ).start();
         // TODO: GUI STUFF AND LIKE LITERALLY EVERYTHING ELSE
 
         SwingUtilities.invokeLater(() -> {
