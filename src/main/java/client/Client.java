@@ -1,6 +1,7 @@
 package client;
 
 import global.ConnectionData;
+import global.ServerData;
 import server.Server;
 
 import javax.swing.*;
@@ -47,7 +48,7 @@ public class Client {
 
             hostButton.addActionListener(e -> {
                 // TODO: PROMPT USER FOR NAME & PORT
-                server = new Server(12345, "John Doe's Game");
+                server = new Server(new ServerData("TEMPORARY GAME NAME"));
                 new Thread(server).start();
             });
 

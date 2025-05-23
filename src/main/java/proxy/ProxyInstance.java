@@ -1,6 +1,7 @@
 package proxy;
 
 import global.ConnectionData;
+import global.ServerData;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -15,16 +16,21 @@ public class ProxyInstance implements Runnable {
     private final List<ConnectionData> clientList = Collections.synchronizedList(new ArrayList<>());
     private ExecutorService pool = Executors.newFixedThreadPool(1000);
     private int port;
+    private volatile ServerData serverData;
 
     public ProxyInstance(ConnectionData server, int port) {
         this.server = server;
         this.port = port;
     }
 
+    public String getName() {
+        return serverData.name;
+    }
+
 
     @Override
     public void run() {
-        new Thread(new ProxyServerListener(server, clientList)).start();
+        new Thread(new ProxyServerListener(server, clientList, serverData)).start();
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             while (true) {
                 ConnectionData data = new ConnectionData(serverSocket.accept());
