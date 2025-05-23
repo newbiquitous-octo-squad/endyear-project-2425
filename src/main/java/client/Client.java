@@ -1,12 +1,15 @@
 package client;
 
 import global.ConnectionData;
+import server.Server;
 
 import javax.swing.*;
 import java.awt.*;
 import java.net.Socket;
 
 public class Client {
+    private static Server server;
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
@@ -43,7 +46,9 @@ public class Client {
             joinButton.setToolTipText("Join an existing game");
 
             hostButton.addActionListener(e -> {
-                // does nothing rn
+                // TODO: PROMPT USER FOR NAME & PORT
+                server = new Server(12345, "John Doe's Game");
+                new Thread(server).start();
             });
 
             joinButton.addActionListener(e -> {

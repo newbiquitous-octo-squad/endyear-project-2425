@@ -8,18 +8,36 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class Server {
-    public static void main(String[] args) throws IOException {
-        Socket socket = new Socket("localhost", 12345);
-        ConnectionData proxyConnectionData = new ConnectionData(socket); // host and port definitions are temporary, obviously
-        ServerListener listener = new ServerListener(proxyConnectionData);
-        new Thread(listener).start();
+public class Server implements Runnable {
+    private int port;
+    private String name;
 
-        // send a ping whenever the user types anything
-        Scanner s = new Scanner(System.in);
-        while (true) {
-            s.nextLine();
-            Sender.send(new PingMessage(), proxyConnectionData);
+    public String getName() {
+        return name;
+    }
+
+    public Server(int port, String name) {
+        this.port = port;
+        this.name = name;
+    }
+
+    @Override
+    public void run() {
+        try {
+            Socket socket = new Socket("localhost", port);
+            ConnectionData proxyConnectionData = new ConnectionData(socket); // host and port definitions are temporary, obviously
+            ServerListener listener = new ServerListener(proxyConnectionData);
+            new Thread(listener).start();
+
+            // send a ping whenever the user types anything
+            Scanner s = new Scanner(System.in);
+            while (true) {
+                s.nextLine();
+                Sender.send(new PingMessage(), proxyConnectionData);
+            }
+        } catch (IOException e) {
+            System.err.println("IOException caught trying to server");
+            e.printStackTrace();
         }
     }
 }

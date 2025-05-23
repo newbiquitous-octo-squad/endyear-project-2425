@@ -3,7 +3,9 @@ package proxy;
 import global.ConnectionData;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,25 +13,34 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Proxy {
-    public static final int PORT = 12345;
-    private static final List<ConnectionData> clientList = Collections.synchronizedList(new ArrayList<>());
+    private static final List<ProxyInstance> serverList = Collections.synchronizedList(new ArrayList<>());
+    ExecutorService pool = Executors.newFixedThreadPool(1000);
+
     public static void main(String[] args) {
-        ExecutorService pool = Executors.newFixedThreadPool(1000);
-
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            ConnectionData server = new ConnectionData(serverSocket.accept());
-            pool.execute(new ProxyServerListener(server, clientList));
-
-
-            // TODO: LET THERE BE PROXY OR SERVER OR WHATEVER!!!
-
+        int port = 25000;
+        try (ServerSocket serverSocket = new ServerSocket(12345)) {
             while (true) {
-                ConnectionData data = new ConnectionData(serverSocket.accept());
-                clientList.add(data);
-                pool.execute(new ProxyClientListener(data, server, clientList));
+                ConnectionData server = new ConnectionData(serverSocket.accept());
+                while (!isPortAvailable(port))
+                    port++;
+                ProxyInstance proxyInstance = new ProxyInstance(server, port);
+                serverList.add(proxyInstance);
+                new Thread(proxyInstance).start();
             }
+
         } catch (IOException e) {
-            System.err.println("UHHHHH OHHHHH!!!");
+            System.err.println("Uh oh! Proxy died!");
+            e.printStackTrace();
+        }
+    }
+
+    private static boolean isPortAvailable(int port) {
+        try (Socket ignored = new Socket("localhost", port)) {
+            return false;
+        } catch (ConnectException e) {
+            return true;
+        } catch (IOException e) {
+            throw new IllegalArgumentException("How did this... transpire???");
         }
     }
 }
