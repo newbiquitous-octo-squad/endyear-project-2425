@@ -47,12 +47,10 @@ public class Client {
             joinButton.setToolTipText("Join an existing game");
 
             hostButton.addActionListener(e -> {
-                // TODO: PROMPT USER FOR NAME & PORT
                 JTextField sNameField = new JTextField();
 
                 Object[] message = {
                         "Server Name:", sNameField
-                        // No port needed right?
                 };
 
                 int option = JOptionPane.showConfirmDialog(frame, message, "Start a Server", JOptionPane.OK_CANCEL_OPTION);
@@ -64,7 +62,7 @@ public class Client {
 
                         frame.dispose();
 
-                        // Not sure what to put here yet
+                        // TODO: JOIN THE SERVER
                         JFrame tempFrame = new JFrame("YourBCAYourBCA");
 
                         tempFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -121,18 +119,8 @@ public class Client {
         }
     }
 
-    // TODO: Make this actually work properly
     public static void startServer(String sName) {
-        // Starts proxy
-        new Thread(() -> {
-            try {
-                proxy.Proxy.main(new String[0]);
-            } catch (Exception e) {
-                System.err.println("failed to start proxy: " + e.getMessage());
-            }
-        }).start();
-
-//        server = new Server(new ServerData(sName));
-//        new Thread(server).start();
+        server = new Server(new ServerData(sName));
+        new Thread(server).start();
     }
 }
