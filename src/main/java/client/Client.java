@@ -21,75 +21,99 @@ public class Client {
             } catch (Exception ex) {
                 System.out.println("That didn't work");
             }
+
+            // JFrame is like the window you're making
             JFrame frame = new JFrame("YourBCAYourBCA");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setSize(600, 400);
 
+            // JPanel is a panel---an area within the frame in which you can add and control stuff
             JPanel mainPanel = new JPanel(new BorderLayout());
             mainPanel.setBackground(new Color(44, 44, 44));
 
+            // JLabel is self-explanatory; you can set its font, border (margins), etc.
             JLabel welcomeLabel = new JLabel("YourBCAYourBCA!", SwingConstants.CENTER);
             welcomeLabel.setFont(new Font("Segoe UI", Font.BOLD, 36));
             welcomeLabel.setBorder(BorderFactory.createEmptyBorder(60, 0, 30, 0));
             mainPanel.add(welcomeLabel, BorderLayout.NORTH);
 
+            // FlowLayout is a layout manager that tries its best to arrange the components based on the params
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 60, 40));
             buttonPanel.setOpaque(false);
 
             // TODO: THESE BUTTONS SHOULD NOT BE USABLE WITHOUT A USERNAME PROMPT
             // ALSO TODO: MICHAEL EXPLAIN HOW THIS GUI THING WORKS SINCE I THINK A LOT IS GONNA BE HANGING ON IT
+
+            // Button: It's a button
             JButton hostButton = new JButton("Host");
             JButton joinButton = new JButton("Join");
 
+            // You can create fonts to reuse (as well as other things)
             Font buttonFont = new Font("Segoe UI", Font.PLAIN, 20);
             hostButton.setFont(buttonFont);
             joinButton.setFont(buttonFont);
 
+            // Tries its best to keep the size constant here
             hostButton.setPreferredSize(new Dimension(140, 50));
             joinButton.setPreferredSize(new Dimension(140, 50));
 
-            hostButton.setToolTipText("Host a new game (coming soon)");
+            // If you hover over the button the small tooltip text will explain the button's purpose
+            hostButton.setToolTipText("Host a new game");
             joinButton.setToolTipText("Join an existing game");
 
+            // Adding basically an on click event to the button
             hostButton.addActionListener(e -> {
+
+                // JTextField is a one-line text input component
                 JTextField sNameField = new JTextField();
 
+                // Making a message object for what comes next
                 Object[] message = {
                         "Server Name:", sNameField
                 };
 
+                // Creates that panel/dialog that pops up with; you can specify the frame it spawns above,
+                // the message object array (like each row with the inputs), the title, and what kind of option icon
+                // you want to appear (error, warning, the question mark thingy)
                 int option = JOptionPane.showConfirmDialog(frame, message, "Start a Server", JOptionPane.OK_CANCEL_OPTION);
 
-                if (option == JOptionPane.OK_OPTION) {
-                    String serverName = sNameField.getText();
+                // Logic portion
+                if (option == JOptionPane.OK_OPTION) { // if you submit the form basically
+                    String serverName = sNameField.getText(); // Gets from the text field
                     try {
-                        startServer(serverName);
+                        startServer(serverName); // Our function
 
-                        frame.dispose();
+                        frame.dispose(); // Evaporates the frame
 
                         // TODO: REPLACE THIS WITH JOINING THE SERVER AND BEHAVE AS NORMAL CLIENT FROM HEREIN
                         JFrame tempFrame = new JFrame("YourBCAYourBCA");
 
-                        tempFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                        tempFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // How to close window
                         tempFrame.setSize(400, 200);
+
+                        // This will be the next window after you start the server
                         JLabel tempLabel = new JLabel("Server has been started", SwingConstants.CENTER);
                         tempLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
                         tempFrame.add(tempLabel);
                         tempFrame.setLocationRelativeTo(null);
                         tempFrame.setVisible(true);
 
+                        // Another dialog, this one indicating an error
                     } catch (NumberFormatException ex) {
                         JOptionPane.showMessageDialog(frame, "Please enter a valid port", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             });
 
+            // Same as above but for the player join
             joinButton.addActionListener(e -> {
                 JTextField hostField = new JTextField();
                 JTextField portField = new JTextField();
+                JTextField usernameField = new JTextField();
                 Object[] message = {
                         "Host:", hostField, // TODO: To be replaced with a choice of server name?
-                        "Server Port:", portField
+                        "Server Port:", portField,
+                        "Your Name: ", usernameField // This does nothing for now
                 };
                 int option = JOptionPane.showConfirmDialog(frame, message, "Join", JOptionPane.OK_CANCEL_OPTION);
                 if (option == JOptionPane.OK_OPTION) {
@@ -104,16 +128,19 @@ public class Client {
                 }
             });
 
+            // Dont forget to add the buttons and whatnot to the panel
             buttonPanel.add(hostButton);
             buttonPanel.add(joinButton);
             mainPanel.add(buttonPanel, BorderLayout.CENTER);
 
-            frame.setContentPane(mainPanel);
+            frame.setContentPane(mainPanel); // Set the main container of the window
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         });
     }
 
+
+    // Our functions
     public static void startListen(String host, int port) {
         try {
             ConnectionData connectionData = new ConnectionData(new Socket(host, port));
