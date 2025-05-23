@@ -48,16 +48,31 @@ public class Client {
 
             hostButton.addActionListener(e -> {
                 // TODO: PROMPT USER FOR NAME & PORT
-                server = new Server(new ServerData("TEMPORARY GAME NAME"));
-                new Thread(server).start();
+                JTextField sNameField = new JTextField();
+
+                Object[] message = {
+                        "Server Name:", sNameField
+                        // No port needed right?
+                };
+
+                int option = JOptionPane.showConfirmDialog(frame, message, "Start a Server", JOptionPane.OK_CANCEL_OPTION);
+
+                if (option == JOptionPane.OK_OPTION) {
+                    String serverName = sNameField.getText();
+                    try {
+                        startServer(serverName);
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(frame, "Please enter a valid port", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
             });
 
             joinButton.addActionListener(e -> {
                 JTextField hostField = new JTextField();
                 JTextField portField = new JTextField();
                 Object[] message = {
-                        "Host:", hostField,
-                        "Port:", portField
+                        "Host:", hostField, // TODO: To be replaced with a choice of server name?
+                        "Server Port:", portField
                 };
                 int option = JOptionPane.showConfirmDialog(frame, message, "Join", JOptionPane.OK_CANCEL_OPTION);
                 if (option == JOptionPane.OK_OPTION) {
@@ -90,5 +105,20 @@ public class Client {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Failed to connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    // TODO: Make this actually work properly
+    public static void startServer(String sName) {
+        // Starts proxy
+        new Thread(() -> {
+            try {
+                proxy.Proxy.main(new String[0]);
+            } catch (Exception e) {
+                System.err.println("failed to start proxy: " + e.getMessage());
+            }
+        }).start();
+
+//        server = new Server(new ServerData(sName));
+//        new Thread(server).start();
     }
 }
