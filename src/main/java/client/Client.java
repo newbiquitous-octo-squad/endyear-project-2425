@@ -61,6 +61,20 @@ public class Client {
                     String serverName = sNameField.getText();
                     try {
                         startServer(serverName);
+
+                        frame.dispose();
+
+                        // Not sure what to put here yet
+                        JFrame tempFrame = new JFrame("YourBCAYourBCA");
+
+                        tempFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                        tempFrame.setSize(400, 200);
+                        JLabel tempLabel = new JLabel("Server has been started", SwingConstants.CENTER);
+                        tempLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
+                        tempFrame.add(tempLabel);
+                        tempFrame.setLocationRelativeTo(null);
+                        tempFrame.setVisible(true);
+
                     } catch (NumberFormatException ex) {
                         JOptionPane.showMessageDialog(frame, "Please enter a valid port", "Error", JOptionPane.ERROR_MESSAGE);
                     }
