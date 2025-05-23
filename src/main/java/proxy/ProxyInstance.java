@@ -1,5 +1,6 @@
 package proxy;
 
+import global.ClientConnectionData;
 import global.ConnectionData;
 import global.ServerData;
 
@@ -13,7 +14,7 @@ import java.util.concurrent.Executors;
 
 public class ProxyInstance implements Runnable {
     private ConnectionData server;
-    private final List<ConnectionData> clientList = Collections.synchronizedList(new ArrayList<>());
+    private final List<ClientConnectionData> clientList = Collections.synchronizedList(new ArrayList<>());
     private ExecutorService pool = Executors.newFixedThreadPool(1000);
     private int port;
     private volatile ServerData serverData;
@@ -33,7 +34,7 @@ public class ProxyInstance implements Runnable {
         new Thread(new ProxyServerListener(server, clientList, serverData)).start();
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             while (true) {
-                ConnectionData data = new ConnectionData(serverSocket.accept());
+                ClientConnectionData data = new ClientConnectionData(serverSocket.accept());
                 clientList.add(data);
                 pool.execute(new ProxyClientListener(data, server, clientList));
             }

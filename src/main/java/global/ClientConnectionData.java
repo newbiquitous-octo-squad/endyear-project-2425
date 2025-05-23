@@ -12,8 +12,15 @@ public class ClientConnectionData extends ConnectionData {
         this.name = name;
     }
 
+    public ClientConnectionData(Socket socket) throws IOException {
+        this(socket,null);
+    }
+
     public String getName() {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
 }

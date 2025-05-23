@@ -1,5 +1,6 @@
 package proxy;
 
+import global.ClientConnectionData;
 import global.ConnectionData;
 import global.ServerData;
 import global.protocol.Message;
@@ -9,7 +10,7 @@ import java.util.List;
 
 public class ProxyServerListener extends AbstractProxyListener {
     ServerData serverData;
-    public ProxyServerListener(ConnectionData connectionData, List<ConnectionData> clientList, ServerData serverData) {
+    public ProxyServerListener(ConnectionData connectionData, List<ClientConnectionData> clientList, ServerData serverData) {
         super(connectionData, clientList);
         this.serverData = serverData;
     }
@@ -20,19 +21,13 @@ public class ProxyServerListener extends AbstractProxyListener {
         }
     }
 
+    @Override
     public void processMessage(Message message) {
         switch (message) {
             case ServerStartupInfoMessage serverStartupInfoMessage:
                 serverData = serverStartupInfoMessage.serverData;
             default:
                 broadcast(message);
-        }
-    }
-
-    @Override
-    public void run() {
-        while (!isClosed) {
-            readMessage().ifPresent(this::processMessage);
         }
     }
 

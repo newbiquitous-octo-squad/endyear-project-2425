@@ -1,7 +1,9 @@
 package client;
 
 import global.ConnectionData;
+import global.Sender;
 import global.ServerData;
+import global.protocol.ClientJoinMessage;
 import server.Server;
 
 import javax.swing.*;
@@ -10,6 +12,7 @@ import java.net.Socket;
 
 public class Client {
     private static Server server;
+    private static String username;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -33,6 +36,8 @@ public class Client {
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 60, 40));
             buttonPanel.setOpaque(false);
 
+            // TODO: THESE BUTTONS SHOULD NOT BE USABLE WITHOUT A USERNAME PROMPT
+            // ALSO TODO: MICHAEL EXPLAIN HOW THIS GUI THING WORKS SINCE I THINK A LOT IS GONNA BE HANGING ON IT
             JButton hostButton = new JButton("Host");
             JButton joinButton = new JButton("Join");
 
@@ -62,7 +67,7 @@ public class Client {
 
                         frame.dispose();
 
-                        // TODO: JOIN THE SERVER
+                        // TODO: REPLACE THIS WITH JOINING THE SERVER AND BEHAVE AS NORMAL CLIENT FROM HEREIN
                         JFrame tempFrame = new JFrame("YourBCAYourBCA");
 
                         tempFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -111,9 +116,11 @@ public class Client {
 
     public static void startListen(String host, int port) {
         try {
+            ConnectionData connectionData = new ConnectionData(new Socket(host, port));
             new Thread(
-                    new ClientListener(new ConnectionData(new Socket(host, port)))
+                    new ClientListener(connectionData)
             ).start();
+            Sender.send(new ClientJoinMessage(username), connectionData);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Failed to connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
         }
