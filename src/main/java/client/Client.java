@@ -136,7 +136,11 @@ public class Client {
                         System.err.println("UH OH");
                         ex.printStackTrace();
                     }
-                    startListen(Proxy.HOST, serverPort);
+                    if (serverPort != -1)
+                        startListen(Proxy.HOST, serverPort);
+                    else {
+                        // TODO
+                    }
                 }
             });
 
