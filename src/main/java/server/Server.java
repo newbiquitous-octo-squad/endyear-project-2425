@@ -5,6 +5,7 @@ import global.Sender;
 import global.protocol.PingMessage;
 import global.protocol.ServerStartupInfoMessage;
 import global.ServerData;
+import proxy.Proxy;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -20,7 +21,7 @@ public class Server implements Runnable {
     @Override
     public void run() {
         try {
-            Socket socket = new Socket("localhost", 12345); // TODO: SET TO PROXY'S HOST DATA, WHICH SHOULD BE A GLOBAL FIELD ACCESSIBLE ANYWHERE
+            Socket socket = new Socket(Proxy.HOST, Proxy.PORT);
             ConnectionData proxyConnectionData = new ConnectionData(socket); // host and port definitions are temporary, obviously
             ServerListener listener = new ServerListener(proxyConnectionData);
             new Thread(listener).start();

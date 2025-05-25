@@ -14,13 +14,8 @@ public abstract class AbstractProxyListener extends AbstractListener {
         this.clientList = clientList;
     }
 
-    public void run() {
-        while (!isClosed) {
-            readMessage().ifPresent(this::processMessage);
-        }
-    }
+
     public abstract void onDisconnect();
-    public abstract void processMessage(Message message);
 
     @Override
     public void close() {

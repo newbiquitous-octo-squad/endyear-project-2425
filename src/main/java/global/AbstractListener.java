@@ -16,11 +16,16 @@ public abstract class AbstractListener implements Runnable {
         Sender.send(m, receiver);
     }
 
+    public void run() {
+        while (!isClosed) {
+            readMessage().ifPresent(this::processMessage);
+        }
+    }
+    public abstract void processMessage(Message message);
+
     protected Optional<Message> readMessage() {
         try {
-            System.out.println("Reading message...");
             Message out = (Message) connectionData.getInput().readObject();
-            System.out.println("Read message " + out.getClass());
             return Optional.of(out);
         } catch (ClassNotFoundException e) {
             System.err.println("Invalid class.");

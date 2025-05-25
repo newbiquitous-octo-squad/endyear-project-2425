@@ -42,4 +42,8 @@ public class ProxyInstance implements Runnable {
             System.err.println("UHHHHH OHHHHH!!!");
         }
     }
+
+    public int getPort() {
+        return port;
+    }
 }

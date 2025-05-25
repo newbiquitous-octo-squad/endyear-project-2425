@@ -9,16 +9,21 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Proxy {
     private static final List<ProxyInstance> serverList = Collections.synchronizedList(new ArrayList<>());
     ExecutorService pool = Executors.newFixedThreadPool(1000);
+    public static final String HOST = "localhost";
+    public static final int PORT = 12345;
+    public static final int SHARER_PORT = 12346;
 
     public static void main(String[] args) {
         int port = 25000;
-        try (ServerSocket serverSocket = new ServerSocket(12345)) {
+        new Thread(new ServerSharer()).start();
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             while (true) {
                 ConnectionData server = new ConnectionData(serverSocket.accept());
                 while (!isPortAvailable(port))
@@ -42,5 +47,10 @@ public class Proxy {
         } catch (IOException e) {
             throw new IllegalArgumentException("How did this... transpire???");
         }
+    }
+
+    public static int getPortByServerName(String serverName) {
+        Optional<ProxyInstance> instance = serverList.stream().filter((i) -> i.getName().equals(serverName)).findFirst();
+        return instance.map(ProxyInstance::getPort).orElse(-1);
     }
 }

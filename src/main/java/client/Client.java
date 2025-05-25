@@ -4,15 +4,22 @@ import global.ConnectionData;
 import global.Sender;
 import global.ServerData;
 import global.protocol.ClientJoinMessage;
+import global.protocol.Message;
+import global.protocol.central.GetServerRequestMessage;
+import global.protocol.central.ServerFoundMessage;
+import proxy.Proxy;
 import server.Server;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.net.Socket;
 
 public class Client {
     private static Server server;
     private static String username;
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -66,10 +73,12 @@ public class Client {
 
                 // JTextField is a one-line text input component
                 JTextField sNameField = new JTextField();
+                JTextField yNameField = new JTextField();
 
                 // Making a message object for what comes next
                 Object[] message = {
-                        "Server Name:", sNameField
+                        "Server Name:", sNameField,
+                        "Your Name: ", yNameField
                 };
 
                 // Creates that panel/dialog that pops up with; you can specify the frame it spawns above,
@@ -80,51 +89,54 @@ public class Client {
                 // Logic portion
                 if (option == JOptionPane.OK_OPTION) { // if you submit the form basically
                     String serverName = sNameField.getText(); // Gets from the text field
-                    try {
-                        startServer(serverName); // Our function
+                    startServer(serverName); // Our function
+                    startListen(Proxy.HOST, Proxy.PORT); // TODO: THIS BE REPLACED BY PROXY SERVER PLACE
 
-                        frame.dispose(); // Evaporates the frame
+                    frame.dispose(); // Evaporates the frame
 
-                        // TODO: REPLACE THIS WITH JOINING THE SERVER AND BEHAVE AS NORMAL CLIENT FROM HEREIN
-                        JFrame tempFrame = new JFrame("YourBCAYourBCA");
+                    // TODO: REPLACE THIS WITH JOINING THE SERVER AND BEHAVE AS NORMAL CLIENT FROM HEREIN
+                    JFrame tempFrame = new JFrame("YourBCAYourBCA");
 
-                        tempFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // How to close window
-                        tempFrame.setSize(400, 200);
+                    tempFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // How to close window
+                    tempFrame.setSize(400, 200);
 
-                        // This will be the next window after you start the server
-                        JLabel tempLabel = new JLabel("Server has been started", SwingConstants.CENTER);
-                        tempLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
-                        tempFrame.add(tempLabel);
-                        tempFrame.setLocationRelativeTo(null);
-                        tempFrame.setVisible(true);
+                    // This will be the next window after you start the server
+//                  JLabel tempLabel = new JLabel("Server has been started", SwingConstants.CENTER);
+//                  tempLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
+//                  tempFrame.add(tempLabel);
+//                  tempFrame.setLocationRelativeTo(null);
+//                  tempFrame.setVisible(true);
 
-                        // Another dialog, this one indicating an error
-                    } catch (NumberFormatException ex) {
-                        JOptionPane.showMessageDialog(frame, "Please enter a valid port", "Error", JOptionPane.ERROR_MESSAGE);
-                    }
+                    // Another dialog, this one indicating an error
                 }
             });
 
             // Same as above but for the player join
             joinButton.addActionListener(e -> {
-                JTextField hostField = new JTextField();
-                JTextField portField = new JTextField();
+                JTextField nameField = new JTextField();
                 JTextField usernameField = new JTextField();
                 Object[] message = {
-                        "Host:", hostField, // TODO: To be replaced with a choice of server name?
-                        "Server Port:", portField,
+                        "Server name", nameField,
                         "Your Name: ", usernameField // This does nothing for now
                 };
                 int option = JOptionPane.showConfirmDialog(frame, message, "Join", JOptionPane.OK_CANCEL_OPTION);
                 if (option == JOptionPane.OK_OPTION) {
-                    String host = hostField.getText();
-                    int port;
+                    int serverPort = -1;
                     try {
-                        port = Integer.parseInt(portField.getText());
-                        startListen(host, port);
-                    } catch (NumberFormatException ex) {
-                        JOptionPane.showMessageDialog(frame, "Invalid port number.", "Error", JOptionPane.ERROR_MESSAGE);
+                        ConnectionData connectionData = new ConnectionData(new Socket(Proxy.HOST, Proxy.SHARER_PORT));
+                        Sender.send(new GetServerRequestMessage(nameField.getText()), connectionData);
+                        Message m = (Message) connectionData.getInput().readObject();
+                        switch (m) {
+                            case ServerFoundMessage found:
+                                serverPort = found.port;
+                            default:
+                                // serverPort is already -1
+                        }
+                    } catch (Exception ex) {
+                        System.err.println("UH OH");
+                        ex.printStackTrace();
                     }
+                    startListen(Proxy.HOST, serverPort);
                 }
             });
 
