@@ -16,7 +16,7 @@ import java.util.concurrent.Executors;
 
 public class Proxy {
     private static final List<ProxyInstance> serverList = Collections.synchronizedList(new ArrayList<>());
-    ExecutorService pool = Executors.newFixedThreadPool(1000);
+    static ExecutorService pool = Executors.newFixedThreadPool(1000);
     public static final String HOST = "localhost";
     public static final int PORT = 12345;
     public static final int SHARER_PORT = 12346;
@@ -31,7 +31,7 @@ public class Proxy {
                     port++;
                 ProxyInstance proxyInstance = new ProxyInstance(server, port);
                 serverList.add(proxyInstance);
-                new Thread(proxyInstance).start();
+                pool.execute(proxyInstance);
             }
 
         } catch (IOException e) {
@@ -48,7 +48,8 @@ public class Proxy {
     }
 
     public static int getPortByServerName(String serverName) {
-        Optional<ProxyInstance> instance = serverList.stream().filter((i) -> i.getName().equals(serverName)).findFirst();
+        Optional<ProxyInstance> instance = serverList.stream().filter((i) -> serverName.equals(i.getName())).findFirst();
+        System.out.println(serverList.size());
         return instance.map(ProxyInstance::getPort).orElse(-1);
     }
 }
