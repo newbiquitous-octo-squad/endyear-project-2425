@@ -1,6 +1,7 @@
 package proxy;
 
 import global.ConnectionData;
+import global.ServerData;
 
 import java.io.IOException;
 import java.net.ConnectException;

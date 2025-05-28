@@ -26,6 +26,7 @@ public class Server implements Runnable {
             ServerListener listener = new ServerListener(proxyConnectionData);
             new Thread(listener).start();
             Sender.send(new ServerStartupInfoMessage(serverData), proxyConnectionData);
+            System.out.println(this.serverData.name);
 
             // send a ping whenever the user types anything
             Scanner s = new Scanner(System.in);
