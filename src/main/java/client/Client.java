@@ -12,8 +12,6 @@ import server.Server;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.net.Socket;
 
 public class Client {
@@ -92,22 +90,9 @@ public class Client {
                     startServer(serverName); // Our function
                     startListen(Proxy.HOST, Proxy.PORT); // TODO: THIS BE REPLACED BY PROXY SERVER PLACE
 
-                    frame.dispose(); // Evaporates the frame
-
                     // TODO: REPLACE THIS WITH JOINING THE SERVER AND BEHAVE AS NORMAL CLIENT FROM HEREIN
-                    JFrame tempFrame = new JFrame("YourBCAYourBCA");
-
-                    tempFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // How to close window
-                    tempFrame.setSize(400, 200);
-
-                    // This will be the next window after you start the server
-//                  JLabel tempLabel = new JLabel("Server has been started", SwingConstants.CENTER);
-//                  tempLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
-//                  tempFrame.add(tempLabel);
-//                  tempFrame.setLocationRelativeTo(null);
-//                  tempFrame.setVisible(true);
-
-                    // Another dialog, this one indicating an error
+                    frame.dispose();
+                    startGameServer(serverName);
                 }
             });
 
@@ -115,6 +100,7 @@ public class Client {
             joinButton.addActionListener(e -> {
                 JTextField nameField = new JTextField();
                 JTextField usernameField = new JTextField();
+
                 Object[] message = {
                         "Server name", nameField,
                         "Your Name: ", usernameField // This does nothing for now
@@ -132,12 +118,16 @@ public class Client {
                             default:
                                 // serverPort is already -1
                         }
+                        String serverName = nameField.getText();
+                        frame.dispose();
+                        startGameServer(serverName);
                     } catch (Exception ex) {
                         System.err.println("UH OH");
                         ex.printStackTrace();
                     }
                     if (serverPort != -1)
                         startListen(Proxy.HOST, serverPort);
+
                     else {
                         // TODO
                     }
@@ -172,5 +162,20 @@ public class Client {
     public static void startServer(String sName) {
         server = new Server(new ServerData(sName));
         new Thread(server).start();
+    }
+
+    // Like the game stuff (the actual server game windows)
+    public static void startGameServer(String serverName) {
+        JFrame gameFrame = new JFrame("YourBCAYourBCA - Server: " + serverName);
+
+        gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // How to close window
+        gameFrame.setSize(400, 200);
+
+        // This will be the next window after you start the server
+        JLabel tempLabel = new JLabel("Server things", SwingConstants.CENTER);
+        tempLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        gameFrame.add(tempLabel);
+        gameFrame.setLocationRelativeTo(null);
+        gameFrame.setVisible(true);
     }
 }
