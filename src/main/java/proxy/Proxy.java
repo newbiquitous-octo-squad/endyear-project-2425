@@ -40,13 +40,10 @@ public class Proxy {
     }
 
     private static boolean isPortAvailable(int port) {
-        try (Socket ignored = new Socket("localhost", port)) {
-            return false;
-        } catch (ConnectException e) {
+        try (ServerSocket ignored = new ServerSocket(port)) {
             return true;
-        } catch (IOException e) {
-            throw new IllegalArgumentException("How did this... transpire???");
-        }
+        } catch (IOException alsoIgnored) {}
+        return false;
     }
 
     public static int getPortByServerName(String serverName) {
