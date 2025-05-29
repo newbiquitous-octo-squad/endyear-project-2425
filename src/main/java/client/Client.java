@@ -168,13 +168,39 @@ public class Client {
     public static void startGameServer(String serverName) {
         JFrame gameFrame = new JFrame("YourBCAYourBCA - Server: " + serverName);
 
-        gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // How to close window
-        gameFrame.setSize(400, 200);
+        gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        gameFrame.setSize(1000, 600);
 
-        // This will be the next window after you start the server
-        JLabel tempLabel = new JLabel("Server things", SwingConstants.CENTER);
+        // Main panel
+        JPanel mainGamePanel = new JPanel(new BorderLayout());
+        mainGamePanel.setBackground(new Color(44, 44, 44));
+
+        JLabel tempLabel = new JLabel("Game Things", SwingConstants.CENTER);
         tempLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        gameFrame.add(tempLabel);
+        mainGamePanel.add(tempLabel, BorderLayout.CENTER);
+
+        // Chat stuff---we've gotta have a chat
+        JPanel chatPanel = new JPanel();
+        chatPanel.setLayout(new BorderLayout());
+        chatPanel.setPreferredSize(new Dimension(300, 600));
+
+        // Chat area (we put the messages here)
+        JTextArea chatArea = new JTextArea();
+        chatArea.setEditable(false);
+        chatArea.setEnabled(false);
+        chatArea.setLineWrap(true);
+        chatArea.setWrapStyleWord(true);
+        JScrollPane chatScrollPane = new JScrollPane(chatArea);
+        chatPanel.add(chatScrollPane, BorderLayout.CENTER);
+
+        // Where you chat into
+        JTextField chatInput = new JTextField();
+        chatInput.setPreferredSize(new Dimension(300, 30));
+        chatPanel.add(chatInput, BorderLayout.SOUTH);
+
+        mainGamePanel.add(chatPanel, BorderLayout.EAST);
+
+        gameFrame.setContentPane(mainGamePanel);
         gameFrame.setLocationRelativeTo(null);
         gameFrame.setVisible(true);
     }
