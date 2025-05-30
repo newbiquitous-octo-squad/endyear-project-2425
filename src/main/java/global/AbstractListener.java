@@ -26,6 +26,7 @@ public abstract class AbstractListener implements Runnable {
     protected Optional<Message> readMessage() {
         try {
             Message out = (Message) connectionData.getInput().readObject();
+            System.out.println("Read message: " + out.getClass().getSimpleName());
             return Optional.of(out);
         } catch (ClassNotFoundException e) {
             System.err.println("Invalid class.");

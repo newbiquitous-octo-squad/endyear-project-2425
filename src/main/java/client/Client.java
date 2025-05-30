@@ -3,7 +3,9 @@ package client;
 import global.ConnectionData;
 import global.Sender;
 import global.ServerData;
+import global.protocol.ChatMessage;
 import global.protocol.ClientJoinMessage;
+import global.protocol.ClientLeaveMessage;
 import global.protocol.Message;
 import global.protocol.central.GetServerRequestMessage;
 import global.protocol.central.ServerFoundMessage;
@@ -12,14 +14,120 @@ import server.Server;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.net.Socket;
 
+// TODO: uhh...maybe like rewrite because it seems we're approaching a world record number of malpractices in our code
 public class Client {
     private static Server server;
-    private static String username;
+    static String username;
 
+    private static ConnectionData connectionData;
+
+    static JTextArea chatArea;
 
     public static void main(String[] args) {
+        openMainFrame();
+    }
+
+    // Our functions
+    public static void startListen(String host, int port) {
+        try {
+            connectionData = new ConnectionData(new Socket(host, port));
+            new Thread(
+                    new ClientListener(connectionData)
+            ).start();
+            Sender.send(new ClientJoinMessage(username), connectionData);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Failed to connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public static void startServer(String sName) {
+        server = new Server(new ServerData(sName));
+        new Thread(server).start();
+    }
+
+    // Like the game stuff (the actual server game windows)
+    public static void startGameServer(String serverName) {
+        JFrame gameFrame = new JFrame("YourBCAYourBCA - Server: " + serverName + "; Username: " + username);
+
+        gameFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        gameFrame.setSize(1000, 600);
+
+        // Main panel
+        JPanel mainGamePanel = new JPanel(new BorderLayout());
+        mainGamePanel.setBackground(new Color(44, 44, 44));
+
+        JLabel tempLabel = new JLabel("Game Things", SwingConstants.CENTER);
+        tempLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        mainGamePanel.add(tempLabel, BorderLayout.CENTER);
+
+        // Chat stuff
+        JPanel chatPanel = new JPanel();
+        chatPanel.setLayout(new BorderLayout());
+        chatPanel.setPreferredSize(new Dimension(300, 600));
+
+        chatArea = new JTextArea();
+        chatArea.setEditable(false);
+        chatArea.setEnabled(false);
+        chatArea.setLineWrap(true);
+        chatArea.setWrapStyleWord(true);
+        JScrollPane chatScrollPane = new JScrollPane(chatArea);
+        chatPanel.add(chatScrollPane, BorderLayout.CENTER);
+
+        JTextField chatInput = new JTextField();
+        chatInput.setPreferredSize(new Dimension(300, 30));
+        chatPanel.add(chatInput, BorderLayout.SOUTH);
+
+        mainGamePanel.add(chatPanel, BorderLayout.EAST);
+
+        gameFrame.setContentPane(mainGamePanel);
+        gameFrame.setLocationRelativeTo(null);
+        gameFrame.setVisible(true);
+
+        chatInput.addActionListener((ActionEvent e) -> {
+            String message = chatInput.getText().trim();
+            chatArea.append(username +  ": " + message + "\n");
+            if (!message.isEmpty()) {
+                chatInput.setText("");
+                if (connectionData == null) {
+                    JOptionPane.showMessageDialog(gameFrame, "Connection not established!", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                Sender.send(new ChatMessage(message, username), connectionData);
+            }
+        });
+
+//        mainGamePanel.setLayout(null);
+
+        JButton leaveButton = new JButton("Leave");
+        leaveButton.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        leaveButton.setPreferredSize(new Dimension(100, 30));
+        leaveButton.addActionListener(e -> {
+            // TODO: Handle changing server ownership when the host leaves, for now doesn't kill server
+            Sender.send(new ClientLeaveMessage(username), connectionData);
+            gameFrame.dispose();
+            openMainFrame();
+        });
+
+        JPanel leavePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        leavePanel.setBackground(new Color(44, 44, 44));
+        leavePanel.add(leaveButton);
+
+        leavePanel.setBounds(mainGamePanel.getWidth() - chatArea.getWidth() - 120, 0, 120, 40);
+        mainGamePanel.add(leavePanel);
+
+        gameFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                gameFrame.dispose();
+                openMainFrame();
+            }
+        });
+    }
+
+    private static void openMainFrame() {
         SwingUtilities.invokeLater(() -> {
             try {
                 UIManager.setLookAndFeel("com.formdev.flatlaf.FlatDarkLaf");
@@ -108,6 +216,7 @@ public class Client {
                 };
                 int option = JOptionPane.showConfirmDialog(frame, message, "Join", JOptionPane.OK_CANCEL_OPTION);
                 if (option == JOptionPane.OK_OPTION) {
+                    username = usernameField.getText();
                     int serverPort = -1;
                     try {
                         ConnectionData connectionData = new ConnectionData(new Socket(Proxy.HOST, Proxy.SHARER_PORT));
@@ -143,74 +252,6 @@ public class Client {
             frame.setContentPane(mainPanel); // Set the main container of the window
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
-        });
-    }
-
-
-    // Our functions
-    public static void startListen(String host, int port) {
-        try {
-            ConnectionData connectionData = new ConnectionData(new Socket(host, port));
-            new Thread(
-                    new ClientListener(connectionData)
-            ).start();
-            Sender.send(new ClientJoinMessage(username), connectionData);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Failed to connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    public static void startServer(String sName) {
-        server = new Server(new ServerData(sName));
-        new Thread(server).start();
-    }
-
-    // Like the game stuff (the actual server game windows)
-    public static void startGameServer(String serverName) {
-        JFrame gameFrame = new JFrame("YourBCAYourBCA - Server: " + serverName);
-
-        gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        gameFrame.setSize(1000, 600);
-
-        // Main panel
-        JPanel mainGamePanel = new JPanel(new BorderLayout());
-        mainGamePanel.setBackground(new Color(44, 44, 44));
-
-        JLabel tempLabel = new JLabel("Game Things", SwingConstants.CENTER);
-        tempLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        mainGamePanel.add(tempLabel, BorderLayout.CENTER);
-
-        // Chat stuff---we've gotta have a chat
-        JPanel chatPanel = new JPanel();
-        chatPanel.setLayout(new BorderLayout());
-        chatPanel.setPreferredSize(new Dimension(300, 600));
-
-        // Chat area (we put the messages here)
-        JTextArea chatArea = new JTextArea();
-        chatArea.setEditable(false);
-        chatArea.setEnabled(false);
-        chatArea.setLineWrap(true);
-        chatArea.setWrapStyleWord(true);
-        JScrollPane chatScrollPane = new JScrollPane(chatArea);
-        chatPanel.add(chatScrollPane, BorderLayout.CENTER);
-
-        // Where you chat into
-        JTextField chatInput = new JTextField();
-        chatInput.setPreferredSize(new Dimension(300, 30));
-        chatPanel.add(chatInput, BorderLayout.SOUTH);
-
-        mainGamePanel.add(chatPanel, BorderLayout.EAST);
-
-        gameFrame.setContentPane(mainGamePanel);
-        gameFrame.setLocationRelativeTo(null);
-        gameFrame.setVisible(true);
-
-        chatInput.addActionListener(e -> {
-            String message = chatInput.getText().trim();
-            if (!message.isEmpty()) {
-                chatArea.append(username + ": " + message + "\n");
-                chatInput.setText("");
-            }
         });
     }
 }

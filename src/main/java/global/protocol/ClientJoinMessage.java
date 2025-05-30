@@ -5,4 +5,5 @@ public class ClientJoinMessage extends Message {
     public ClientJoinMessage(String username) {
         this.username = username;
     }
+
 }

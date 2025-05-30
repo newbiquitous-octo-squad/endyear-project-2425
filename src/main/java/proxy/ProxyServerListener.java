@@ -2,7 +2,10 @@ package proxy;
 
 import global.ClientConnectionData;
 import global.ConnectionData;
+import global.Sender;
 import global.ServerData;
+import global.protocol.ChatMessage;
+import global.protocol.ClientJoinMessage;
 import global.protocol.Message;
 import global.protocol.ServerStartupInfoMessage;
 
@@ -28,10 +31,15 @@ public class ProxyServerListener extends AbstractProxyListener {
     @Override
     public void processMessage(Message message) {
         switch (message) {
-            case ServerStartupInfoMessage serverStartupInfoMessage:
+            case ServerStartupInfoMessage serverStartupInfoMessage -> {
                 serverData.setName(serverStartupInfoMessage.serverData.name);
-            default:
-                broadcast(message);
+            }
+            case ChatMessage chatMessage -> {
+                System.out.println(clientList.size());
+                System.out.println("Broadcasting message from " + chatMessage.sender);
+                broadcast(chatMessage);
+            }
+            default -> broadcast(message);
         }
     }
 

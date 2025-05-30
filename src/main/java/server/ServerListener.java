@@ -2,6 +2,8 @@ package server;
 
 import global.AbstractListener;
 import global.ConnectionData;
+import global.protocol.ChatMessage;
+import global.protocol.ClientJoinMessage;
 import global.protocol.Message;
 
 public class ServerListener extends AbstractListener {
@@ -12,6 +14,16 @@ public class ServerListener extends AbstractListener {
 
     @Override
     public void processMessage(Message message) {
-        System.out.println("recieved a message");
+        switch (message) {
+            case ChatMessage chatMessage -> {
+                System.out.println("Forwarding message from " + chatMessage.sender);
+                send(chatMessage, connectionData);
+            }
+            case ClientJoinMessage clientJoinMessage -> {
+                System.out.println(clientJoinMessage.username + " has joined the server.");
+                send(clientJoinMessage, connectionData);
+            }
+            default -> System.out.printf("'got a %s, idk what it is tho...' - titan toiletmaster\n", message.getClass());
+        }
     }
 }

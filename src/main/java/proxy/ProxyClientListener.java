@@ -2,13 +2,16 @@ package proxy;
 
 import global.ClientConnectionData;
 import global.ConnectionData;
+import global.protocol.ChatMessage;
 import global.protocol.ClientJoinMessage;
+import global.protocol.ClientLeaveMessage;
 import global.protocol.Message;
 
 import java.util.List;
 
 public class ProxyClientListener extends AbstractProxyListener {
     private ConnectionData server;
+
     public ProxyClientListener(ClientConnectionData clientData, ConnectionData server, List<ClientConnectionData> otherClientsList) {
         super(clientData, otherClientsList);
         this.server = server;
@@ -19,6 +22,10 @@ public class ProxyClientListener extends AbstractProxyListener {
         super.send(m, server);
     }
 
+    // Sends the message to all the clients
+//    protected void broadcast(Message m) {
+//        clientList.forEach(client -> send(m, client));
+//    }
 
     @Override
     public void onDisconnect() {
@@ -28,10 +35,20 @@ public class ProxyClientListener extends AbstractProxyListener {
     @Override
     public void processMessage(Message message) {
         switch (message) {
-            case ClientJoinMessage clientJoinMessage:
+            case ClientJoinMessage clientJoinMessage -> {
                 ((ClientConnectionData) connectionData).setName(clientJoinMessage.username);
-            default:
-                send(message);
+                clientList.forEach(client -> send(clientJoinMessage, client));
+                send(clientJoinMessage);
+            }
+            case ChatMessage chatMessage -> {
+                if (((ClientConnectionData) connectionData).getName() == null) {
+                    System.err.println("How?");
+                    return;
+                }
+                clientList.forEach(client -> send(chatMessage, client));
+                send(chatMessage);
+            }
+            default -> send(message);
         }
     }
 }
