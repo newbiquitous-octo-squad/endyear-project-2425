@@ -87,6 +87,7 @@ public class Client {
                 // Logic portion
                 if (option == JOptionPane.OK_OPTION) { // if you submit the form basically
                     String serverName = sNameField.getText(); // Gets from the text field
+                    username = yNameField.getText();
                     startServer(serverName); // Our function
                     startListen(Proxy.HOST, Proxy.PORT); // TODO: THIS BE REPLACED BY PROXY SERVER PLACE
 
@@ -203,5 +204,13 @@ public class Client {
         gameFrame.setContentPane(mainGamePanel);
         gameFrame.setLocationRelativeTo(null);
         gameFrame.setVisible(true);
+
+        chatInput.addActionListener(e -> {
+            String message = chatInput.getText().trim();
+            if (!message.isEmpty()) {
+                chatArea.append(username + ": " + message + "\n");
+                chatInput.setText("");
+            }
+        });
     }
 }
