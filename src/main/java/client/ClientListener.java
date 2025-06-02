@@ -29,6 +29,10 @@ public class ClientListener extends AbstractListener {
             case ClientLeaveMessage clientLeaveMessage -> {
                 chatArea.append(clientLeaveMessage.toString());
             }
+
+            case ClientJoinMessage clientJoinMessage -> {
+                chatArea.append(clientJoinMessage.toString());
+            }
             default -> System.out.println("Received unknown message - Bitain BoiletBaster");
         }
     }

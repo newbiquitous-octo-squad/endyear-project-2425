@@ -196,6 +196,9 @@ public class Client {
                 if (option == JOptionPane.OK_OPTION) { // if you submit the form basically
                     String serverName = sNameField.getText(); // Gets from the text field
                     username = yNameField.getText();
+
+                    System.out.println(username + " is now hosting " + serverName);
+
                     startServer(serverName); // Our function
                     startListen(Proxy.HOST, Proxy.PORT); // TODO: THIS BE REPLACED BY PROXY SERVER PLACE
 
@@ -217,6 +220,9 @@ public class Client {
                 int option = JOptionPane.showConfirmDialog(frame, message, "Join", JOptionPane.OK_CANCEL_OPTION);
                 if (option == JOptionPane.OK_OPTION) {
                     username = usernameField.getText();
+
+                    System.out.println(username);
+
                     int serverPort = -1;
                     try {
                         ConnectionData connectionData = new ConnectionData(new Socket(Proxy.HOST, Proxy.SHARER_PORT));
