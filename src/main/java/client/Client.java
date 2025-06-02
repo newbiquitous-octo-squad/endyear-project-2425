@@ -1,5 +1,7 @@
 package client;
 
+import client.game.Cube;
+import client.game.GameCanvas;
 import global.ConnectionData;
 import global.Sender;
 import global.ServerData;
@@ -59,9 +61,15 @@ public class Client {
         JPanel mainGamePanel = new JPanel(new BorderLayout());
         mainGamePanel.setBackground(new Color(44, 44, 44));
 
-        JLabel tempLabel = new JLabel("Game Things", SwingConstants.CENTER);
-        tempLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        mainGamePanel.add(tempLabel, BorderLayout.CENTER);
+        GameCanvas canvas = new GameCanvas();
+        canvas.addCube(new Cube(100, 100, 50, Color.RED));
+        canvas.addCube(new Cube(200, 150, 75, Color.BLUE));
+
+        gameFrame.add(canvas);
+        gameFrame.pack();
+        gameFrame.setLocationRelativeTo(null);
+
+        mainGamePanel.add(canvas, BorderLayout.CENTER);
 
         // Chat stuff
         JPanel chatPanel = new JPanel();
@@ -99,7 +107,6 @@ public class Client {
             }
         });
 
-//        mainGamePanel.setLayout(null);
 
         JButton leaveButton = new JButton("Leave");
         leaveButton.setFont(new Font("Segoe UI", Font.PLAIN, 16));

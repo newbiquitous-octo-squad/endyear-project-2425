@@ -4,6 +4,7 @@ import global.AbstractListener;
 import global.ConnectionData;
 import global.protocol.ChatMessage;
 import global.protocol.ClientJoinMessage;
+import global.protocol.ClientLeaveMessage;
 import global.protocol.Message;
 
 public class ServerListener extends AbstractListener {
@@ -22,6 +23,10 @@ public class ServerListener extends AbstractListener {
             case ClientJoinMessage clientJoinMessage -> {
                 System.out.println(clientJoinMessage.username + " has joined the server.");
                 send(clientJoinMessage, connectionData);
+            }
+            case ClientLeaveMessage clientLeaveMessage -> {
+                System.out.println(clientLeaveMessage.username + " has left the server.");
+                send(clientLeaveMessage, connectionData);
             }
             default -> System.out.printf("'got a %s, idk what it is tho...' - titan toiletmaster\n", message.getClass());
         }
