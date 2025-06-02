@@ -4,6 +4,8 @@ import global.AbstractListener;
 import global.ConnectionData;
 import global.protocol.*;
 
+import java.util.Objects;
+
 import static client.Client.chatArea;
 import static client.Client.username;
 
@@ -31,7 +33,7 @@ public class ClientListener extends AbstractListener {
             }
 
             case ClientJoinMessage clientJoinMessage -> {
-                chatArea.append(clientJoinMessage.toString());
+                if (!(Objects.equals(clientJoinMessage.username, username))) chatArea.append(clientJoinMessage.toString());
             }
             default -> System.out.println("Received unknown message - Bitain BoiletBaster");
         }
