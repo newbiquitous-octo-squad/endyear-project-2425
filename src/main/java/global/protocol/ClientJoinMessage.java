@@ -6,4 +6,8 @@ public class ClientJoinMessage extends Message {
         this.username = username;
     }
 
+    @Override
+    public String toString() {
+        return "Welcome " + username + "!\n";
+    }
 }
