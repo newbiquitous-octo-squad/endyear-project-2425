@@ -63,13 +63,21 @@ public class Client {
 
         GameCanvas canvas = new GameCanvas();
         canvas.addCube(new Cube(100, 100, 50, Color.RED));
-        canvas.addCube(new Cube(200, 150, 75, Color.BLUE));
+
+        for (Cube cube : canvas.cubes) {
+            cube.setAcceleration(0, 1);
+            canvas.addCube(cube);
+        }
 
         gameFrame.add(canvas);
         gameFrame.pack();
         gameFrame.setLocationRelativeTo(null);
 
         mainGamePanel.add(canvas, BorderLayout.CENTER);
+
+        new Thread(canvas).start();
+
+        gameFrame.setContentPane(mainGamePanel);
 
         // Chat stuff
         JPanel chatPanel = new JPanel();
