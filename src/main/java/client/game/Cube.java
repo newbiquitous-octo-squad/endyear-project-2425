@@ -11,7 +11,7 @@ public class Cube {
     private String username;
 
     private int floorHeight = 400;
-    private int canvasWidth = 510;
+    private int canvasWidth = 500;
 
     public Cube(int x, int y, int size, String username, Color color) {
         this.x = x;
@@ -34,6 +34,14 @@ public class Cube {
         if (y + size > floorHeight) {
             y = floorHeight - size;
             velocityY = 0;
+        }
+
+        if (x + size > canvasWidth) {
+            x = canvasWidth - size;
+        }
+
+        if (x < 1) {
+            x = 1;
         }
 
         // TEMPORARY:
@@ -61,5 +69,21 @@ public class Cube {
     public void setAcceleration(int accelerationX, int accelerationY) {
         this.accelerationX = accelerationX;
         this.accelerationY = accelerationY;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getHeight() {
+        return size;
+    }
+
+    public int getFloorHeight() {
+        return floorHeight;
     }
 }

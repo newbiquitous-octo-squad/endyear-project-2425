@@ -62,7 +62,7 @@ public class Client {
         mainGamePanel.setBackground(new Color(44, 44, 44));
 
         GameCanvas canvas = new GameCanvas();
-        Cube cube = new Cube(100, 100, 50, username, Color.RED);
+        Cube cube = new Cube(100, 100, 50, username, new Color((int) (Math.random()*206 + 50), (int) (Math.random()*206 + 50), (int) (Math.random()*206 + 50)));
         canvas.addCube(cube);
 
         for (Cube c : canvas.cubes) {
@@ -163,7 +163,9 @@ public class Client {
                 } else if (!chatInput.isFocusOwner()) {
                     switch (e.getKeyCode()) {
                         case KeyEvent.VK_W:
-                            cube.setVelocity(cube.velocityX, -15);
+                            if (cube.getY() + cube.getHeight() == cube.getFloorHeight()) {
+                                cube.setVelocity(cube.velocityX, -15);
+                            }
                             break;
                         case KeyEvent.VK_A:
                             cube.setVelocity(-5, cube.velocityY);
