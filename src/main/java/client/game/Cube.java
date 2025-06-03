@@ -1,5 +1,7 @@
 package client.game;
 
+import server.game.jumpincremental.Player;
+
 import java.awt.*;
 
 public class Cube {
@@ -56,6 +58,15 @@ public class Cube {
         g.drawString(username, textX, textY);
     }
 
+    public void setFromPlayer(Player p) {
+        x = p.posX;
+        y = p.posY;
+        velocityX = p.velX;
+        velocityY = p.velY;
+        accelerationX = p.accX;
+        accelerationY = p.accY;
+    }
+
     public void setVelocity(int velocityX, int velocityY) {
         this.velocityX = velocityX;
         this.velocityY = velocityY;
@@ -80,5 +91,9 @@ public class Cube {
 
     public int getFloorHeight() {
         return floorHeight;
+    }
+
+    public String getUsername() {
+        return username;
     }
 }

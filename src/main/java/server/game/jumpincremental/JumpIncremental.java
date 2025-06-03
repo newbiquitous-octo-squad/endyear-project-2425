@@ -4,6 +4,8 @@ import global.ConnectionData;
 import global.Sender;
 import global.protocol.game.GameMessage;
 import global.protocol.game.GameRegisterMessage;
+import global.protocol.game.jumpincremental.ClientJumpMessage;
+import global.protocol.game.jumpincremental.ClientShareStateMessage;
 import global.protocol.game.jumpincremental.UpdateStateMessage;
 import server.game.Game;
 
@@ -36,9 +38,21 @@ public class JumpIncremental extends Game {
     public void processMessage(GameMessage m) {
         switch (m) {
             case GameRegisterMessage registerMessage -> players.put(registerMessage.username, new Player());
+            case ClientShareStateMessage stateMessage -> this.setPlayerData(stateMessage);
+            case ClientJumpMessage jumpMessage -> players.get(jumpMessage.username).score++;
             default ->
                     System.out.println("Saw a message that was called " + m.getClass().getSimpleName() + ", idk what that means tho. Taitan MoiletDisaster");
         }
+    }
+
+    public void setPlayerData(ClientShareStateMessage stateMessage) {
+        Player p = players.get(stateMessage.name);
+        p.accX = stateMessage.accX;
+        p.accY = stateMessage.accY;
+        p.velX = stateMessage.velX;
+        p.velY = stateMessage.velY;
+        p.posX = stateMessage.posX;
+        p.posY = stateMessage.posY;
     }
 
     @Override

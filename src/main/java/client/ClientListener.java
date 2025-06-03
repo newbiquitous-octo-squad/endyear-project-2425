@@ -3,15 +3,16 @@ package client;
 import global.AbstractListener;
 import global.ConnectionData;
 import global.protocol.*;
+import global.protocol.game.jumpincremental.UpdateStateMessage;
+import server.game.jumpincremental.Player;
 
 import java.util.Objects;
 
-import static client.Client.chatArea;
-import static client.Client.username;
-
 public class ClientListener extends AbstractListener {
-    public ClientListener(ConnectionData connectionData) {
+    private Client client;
+    public ClientListener(ConnectionData connectionData, Client client) {
         super(connectionData);
+        this.client = client;
     }
 
     @Override
@@ -23,19 +24,28 @@ public class ClientListener extends AbstractListener {
             }
 
             case ChatMessage chatMessage -> {
-                if (!chatMessage.sender.equals(username)) {
-                    chatArea.append(chatMessage.toString());
+                if (!chatMessage.sender.equals(client.username)) {
+                    client.chatArea.append(chatMessage.toString());
                     System.out.println("Message appended!");
                 }
             }
             case ClientLeaveMessage clientLeaveMessage -> {
-                chatArea.append(clientLeaveMessage.toString());
+                client.chatArea.append(clientLeaveMessage.toString());
             }
 
             case ClientJoinMessage clientJoinMessage -> {
-                if (!(Objects.equals(clientJoinMessage.username, username))) chatArea.append(clientJoinMessage.toString());
+                if (!(Objects.equals(clientJoinMessage.username, client.username))) client.chatArea.append(clientJoinMessage.toString());
             }
-            default -> System.out.println("Received unknown message - Bitain BoiletBaster");
+
+            case UpdateStateMessage updateStateMessage -> handleJumpIncrementalStateUpdate(updateStateMessage);
+
+            default -> System.out.println("Received unknown message - Britain BoiletBaster");
         }
+    }
+
+    private void handleJumpIncrementalStateUpdate(UpdateStateMessage stateMessage) {
+        client.canvas.cubes.forEach(cube -> {
+            cube.setFromPlayer(stateMessage.data.get(cube.getUsername()));
+        });
     }
 }

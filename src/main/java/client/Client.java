@@ -19,25 +19,25 @@ import java.awt.*;
 import java.awt.event.*;
 import java.net.Socket;
 
-// TODO: uhh...maybe like rewrite because it seems we're approaching a world record number of malpractices in our code
 public class Client {
-    private static Server server;
-    static String username;
+    private Server server;
+    String username;
 
-    private static ConnectionData connectionData;
+    private ConnectionData connectionData;
 
-    static JTextArea chatArea;
+    JTextArea chatArea;
+    GameCanvas canvas;
 
     public static void main(String[] args) {
-        openMainFrame();
+        new Client().openMainFrame();
     }
 
     // Our functions
-    public static void startListen(String host, int port) {
+    public void startListen(String host, int port) {
         try {
             connectionData = new ConnectionData(new Socket(host, port));
             new Thread(
-                    new ClientListener(connectionData)
+                    new ClientListener(connectionData, this)
             ).start();
             Sender.send(new ClientJoinMessage(username), connectionData);
         } catch (Exception e) {
@@ -45,13 +45,13 @@ public class Client {
         }
     }
 
-    public static void startServer(String sName) {
+    public void startServer(String sName) {
         server = new Server(new ServerData(sName));
         new Thread(server).start();
     }
 
     // Like the game stuff (the actual server game windows)
-    public static void startGameServer(String serverName) {
+    public void startGameServer(String serverName) {
         JFrame gameFrame = new JFrame("YourBCAYourBCA - Server: " + serverName + "; Username: " + username);
 
         gameFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -61,7 +61,7 @@ public class Client {
         JPanel mainGamePanel = new JPanel(new BorderLayout());
         mainGamePanel.setBackground(new Color(44, 44, 44));
 
-        GameCanvas canvas = new GameCanvas();
+        canvas = new GameCanvas();
         Cube cube = new Cube(100, 100, 50, username, new Color((int) (Math.random()*206 + 50), (int) (Math.random()*206 + 50), (int) (Math.random()*206 + 50)));
         canvas.addCube(cube);
 
@@ -194,7 +194,7 @@ public class Client {
         SwingUtilities.invokeLater(() -> gameFrame.requestFocus());
     }
 
-    private static void openMainFrame() {
+    private void openMainFrame() {
         SwingUtilities.invokeLater(() -> {
             try {
                 UIManager.setLookAndFeel("com.formdev.flatlaf.FlatDarkLaf");

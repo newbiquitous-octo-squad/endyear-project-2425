@@ -6,6 +6,7 @@ import global.protocol.ChatMessage;
 import global.protocol.ClientJoinMessage;
 import global.protocol.ClientLeaveMessage;
 import global.protocol.Message;
+import global.protocol.central.ConnectionDeclinedMessage;
 
 import java.util.List;
 
@@ -36,8 +37,12 @@ public class ProxyClientListener extends AbstractProxyListener {
     public void processMessage(Message message) {
         switch (message) {
             case ClientJoinMessage clientJoinMessage -> {
+                if (clientList.stream().anyMatch(data -> clientJoinMessage.username.equals(data.getName()))) {
+                    send(new ConnectionDeclinedMessage("Your username was already taken! Find a new one."), connectionData);
+                    this.close();
+                    return;
+                }
                 ((ClientConnectionData) connectionData).setName(clientJoinMessage.username);
-                clientList.forEach(client -> send(clientJoinMessage, client));
                 send(clientJoinMessage);
             }
             case ChatMessage chatMessage -> {
@@ -45,7 +50,6 @@ public class ProxyClientListener extends AbstractProxyListener {
                     System.err.println("How?");
                     return;
                 }
-                clientList.forEach(client -> send(chatMessage, client));
                 send(chatMessage);
             }
             default -> send(message);
