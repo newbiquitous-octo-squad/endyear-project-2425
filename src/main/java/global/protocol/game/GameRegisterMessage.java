@@ -2,7 +2,7 @@ package global.protocol.game;
 
 import global.protocol.Message;
 
-public class GameRegisterMessage extends Message {
+public class GameRegisterMessage extends GameMessage {
 
     public String username;
 

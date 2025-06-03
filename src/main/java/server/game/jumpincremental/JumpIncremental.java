@@ -1,37 +1,48 @@
 package server.game.jumpincremental;
 
-import global.ClientConnectionData;
+import global.ConnectionData;
+import global.Sender;
+import global.protocol.game.GameMessage;
+import global.protocol.game.GameRegisterMessage;
+import global.protocol.game.jumpincremental.UpdateStateMessage;
+import server.game.Game;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class JumpIncremental implements Runnable{
+public class JumpIncremental extends Game {
+    private ConnectionData connectionData;
     private Map<String, Player> players;
-    private volatile boolean running;
+    private Timer timer = new Timer();
 
-    public JumpIncremental(List<String> usernames) {
+    public JumpIncremental(ConnectionData connectionData) {
         this.players = new HashMap<>();
-        for (String username : usernames) {
-            players.put(username, new Player());
-        }
         running = true;
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                Sender.send(new UpdateStateMessage(players), connectionData);
+            }
+        }, 100, 100);
     }
 
     @Override
     public void run() {
-
-        while(running) {
-
-            try {
-                Thread.sleep(100); //1 second / 100 milli * seconds = 10 millis^-1
-                System.out.println("hello there!");
-            } catch (InterruptedException e) {
-                System.err.println("JumpIncremental thread had its sleep interrupted and is now cranky");
-                running = false;
-            } catch (Exception e){
-                System.err.println(e.getMessage());
-            }
+        while (running) {
         }
+        timer.cancel();
+    }
+
+    @Override
+    public void processMessage(GameMessage m) {
+        switch (m) {
+            case GameRegisterMessage registerMessage -> players.put(registerMessage.username, new Player());
+            default ->
+                    System.out.println("Saw a message that was called " + m.getClass().getSimpleName() + ", idk what that means tho. Taitan MoiletDisaster");
+        }
+    }
+
+    @Override
+    public void stop() {
+        this.running = false;
     }
 }

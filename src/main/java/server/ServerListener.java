@@ -6,17 +6,15 @@ import global.protocol.ChatMessage;
 import global.protocol.ClientJoinMessage;
 import global.protocol.ClientLeaveMessage;
 import global.protocol.Message;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import global.protocol.game.GameMessage;
+import server.game.Game;
 
 public class ServerListener extends AbstractListener {
-    private final List<String> usernames;
+    private final Server server;
 
-    public ServerListener(ConnectionData proxyServer, List<String> usernames) {
+    public ServerListener(ConnectionData proxyServer, Server server) {
         super(proxyServer);
-        this.usernames = usernames;
+        this.server = server;
     }
 
     @Override
@@ -29,13 +27,14 @@ public class ServerListener extends AbstractListener {
             case ClientJoinMessage clientJoinMessage -> {
                 System.out.println(clientJoinMessage.username + " has joined the server.");
                 send(clientJoinMessage, connectionData);
-                usernames.add(clientJoinMessage.username);
+                server.getUsernames().add(clientJoinMessage.username);
             }
             case ClientLeaveMessage clientLeaveMessage -> {
                 System.out.println(clientLeaveMessage.username + " has left the server.");
                 send(clientLeaveMessage, connectionData);
-                usernames.remove(clientLeaveMessage.username);
+                server.getUsernames().remove(clientLeaveMessage.username);
             }
+            case GameMessage gameMessage -> server.getSelectedGame().processMessage(gameMessage);
             default -> System.out.printf("'got a %s, idk what it is tho...' - titan toiletmaster\n", message.getClass());
         }
     }
