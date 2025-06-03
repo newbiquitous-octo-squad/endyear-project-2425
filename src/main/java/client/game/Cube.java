@@ -5,24 +5,24 @@ import java.awt.*;
 public class Cube {
     private int x, y, size;
     private Color color;
-    private int velocityX, velocityY;
-    private int accelerationX, accelerationY;
+    public int velocityX, velocityY;
+    public int accelerationX, accelerationY;
 
-    private String text;
+    private String username;
 
     private int floorHeight = 400;
     private int canvasWidth = 510;
 
-    public Cube(int x, int y, int size, String text, Color color) {
+    public Cube(int x, int y, int size, String username, Color color) {
         this.x = x;
         this.y = y;
         this.size = size;
         this.color = color;
-        this.velocityX = 3; // Temporary
+        this.velocityX = 0;
         this.velocityY = 0;
         this.accelerationX = 0;
         this.accelerationY = 0;
-        this.text = text;
+        this.username = username;
     }
 
     public void update() {
@@ -37,9 +37,9 @@ public class Cube {
         }
 
         // TEMPORARY:
-        if (x <= 0 || x + size >= canvasWidth) {
-            velocityX = -velocityX;
-        }
+//        if (x <= 0 || x + size >= canvasWidth) {
+//            velocityX = -velocityX;
+//        }
     }
 
     public void draw(Graphics g) {
@@ -48,9 +48,9 @@ public class Cube {
 
         g.setColor(Color.BLACK);
         FontMetrics fm = g.getFontMetrics();
-        int textX = x + (size - fm.stringWidth(text)) / 2;
+        int textX = x + (size - fm.stringWidth(username)) / 2;
         int textY = y + (size - fm.getHeight()) / 2 + fm.getAscent();
-        g.drawString(text, textX, textY);
+        g.drawString(username, textX, textY);
     }
 
     public void setVelocity(int velocityX, int velocityY) {

@@ -16,7 +16,7 @@ import server.Server;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.event.*;
 import java.net.Socket;
 
 // TODO: uhh...maybe like rewrite because it seems we're approaching a world record number of malpractices in our code
@@ -62,11 +62,12 @@ public class Client {
         mainGamePanel.setBackground(new Color(44, 44, 44));
 
         GameCanvas canvas = new GameCanvas();
-        canvas.addCube(new Cube(100, 100, 50, username, Color.RED));
+        Cube cube = new Cube(100, 100, 50, username, Color.RED);
+        canvas.addCube(cube);
 
-        for (Cube cube : canvas.cubes) {
-            cube.setAcceleration(0, 1);
-            canvas.addCube(cube);
+        for (Cube c : canvas.cubes) {
+            c.setAcceleration(0, 1);
+            canvas.addCube(c);
         }
 
         gameFrame.add(canvas);
@@ -78,6 +79,8 @@ public class Client {
         new Thread(canvas).start();
 
         gameFrame.setContentPane(mainGamePanel);
+
+
 
         // Chat stuff
         JPanel chatPanel = new JPanel();
@@ -140,6 +143,53 @@ public class Client {
                 openMainFrame();
             }
         });
+
+        chatInput.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_ESCAPE:
+                        gameFrame.requestFocus();
+                        break;
+                }
+            }
+        });
+
+        gameFrame.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_SLASH) {
+                    chatInput.requestFocus();
+                } else if (!chatInput.isFocusOwner()) {
+                    switch (e.getKeyCode()) {
+                        case KeyEvent.VK_W:
+                            cube.setVelocity(cube.velocityX, -15);
+                            break;
+                        case KeyEvent.VK_A:
+                            cube.setVelocity(-5, cube.velocityY);
+                            break;
+                        case KeyEvent.VK_D:
+                            cube.setVelocity(5, cube.velocityY);
+                            break;
+                    }
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if (!chatInput.isFocusOwner()) {
+                    switch (e.getKeyCode()) {
+                        case KeyEvent.VK_W:
+                        case KeyEvent.VK_A:
+                        case KeyEvent.VK_D:
+                            cube.setVelocity(0, cube.velocityY);
+                            break;
+                    }
+                }
+            }
+        });
+
+        SwingUtilities.invokeLater(() -> gameFrame.requestFocus());
     }
 
     private static void openMainFrame() {
