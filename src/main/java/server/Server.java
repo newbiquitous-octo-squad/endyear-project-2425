@@ -9,10 +9,14 @@ import proxy.Proxy;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Scanner;
 
 public class Server implements Runnable {
     private ServerData serverData;
+    private final List<String> usernames = Collections.synchronizedList(new ArrayList<>());
 
     public Server(ServerData serverData) {
         this.serverData = serverData;
@@ -23,7 +27,7 @@ public class Server implements Runnable {
         try {
             Socket socket = new Socket(Proxy.HOST, Proxy.PORT);
             ConnectionData proxyConnectionData = new ConnectionData(socket); // host and port definitions are temporary, obviously
-            ServerListener listener = new ServerListener(proxyConnectionData);
+            ServerListener listener = new ServerListener(proxyConnectionData, usernames);
             new Thread(listener).start();
             Sender.send(new ServerStartupInfoMessage(serverData), proxyConnectionData);
             System.out.println(this.serverData.name);

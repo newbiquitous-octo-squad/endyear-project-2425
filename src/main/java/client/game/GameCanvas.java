@@ -49,4 +49,7 @@ public class GameCanvas extends Canvas implements Runnable {
     public void stop() {
         running = false;
     }
+    public void start() {
+        running = true;
+    }
 }

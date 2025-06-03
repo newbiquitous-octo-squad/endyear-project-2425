@@ -1,15 +1,20 @@
-package server;
+package server.game.jumpincremental;
 
 import global.ClientConnectionData;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class JumpIncremental implements Runnable{
-    private List<ClientConnectionData> clients;
+    private Map<String, Player> players;
     private volatile boolean running;
 
-    public JumpIncremental() {
-
+    public JumpIncremental(List<String> usernames) {
+        this.players = new HashMap<>();
+        for (String username : usernames) {
+            players.put(username, new Player());
+        }
         running = true;
     }
 

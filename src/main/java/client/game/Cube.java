@@ -40,14 +40,9 @@ public class Cube {
             x = canvasWidth - size;
         }
 
-        if (x < 1) {
-            x = 1;
+        if (x < 0) {
+            x = 0;
         }
-
-        // TEMPORARY:
-//        if (x <= 0 || x + size >= canvasWidth) {
-//            velocityX = -velocityX;
-//        }
     }
 
     public void draw(Graphics g) {

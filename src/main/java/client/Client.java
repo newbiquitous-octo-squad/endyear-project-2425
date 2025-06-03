@@ -267,7 +267,7 @@ public class Client {
                     System.out.println(username + " is now hosting " + serverName);
 
                     startServer(serverName); // Our function
-                    startListen(Proxy.HOST, Proxy.PORT); // TODO: THIS BE REPLACED BY PROXY SERVER PLACE
+                    startListen(Proxy.HOST, Proxy.PORT);
 
                     // TODO: REPLACE THIS WITH JOINING THE SERVER AND BEHAVE AS NORMAL CLIENT FROM HEREIN
                     frame.dispose();
