@@ -62,7 +62,7 @@ public class Client {
         mainGamePanel.setBackground(new Color(44, 44, 44));
 
         GameCanvas canvas = new GameCanvas();
-        canvas.addCube(new Cube(100, 100, 50, Color.RED));
+        canvas.addCube(new Cube(100, 100, 50, username, Color.RED));
 
         for (Cube cube : canvas.cubes) {
             cube.setAcceleration(0, 1);
