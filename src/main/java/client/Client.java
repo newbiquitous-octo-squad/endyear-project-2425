@@ -130,11 +130,32 @@ public class Client {
         });
 
         JPanel leavePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        leavePanel.setBackground(new Color(44, 44, 44));
         leavePanel.add(leaveButton);
 
-        leavePanel.setBounds(mainGamePanel.getWidth() - chatArea.getWidth() - 120, 0, 120, 40);
+        mainGamePanel.setLayout(null);
+
+        canvas.setBounds(0, 0, mainGamePanel.getWidth() - chatPanel.getWidth(), mainGamePanel.getHeight());
+
+        leavePanel.setBounds(10, 10, 108, 40);
         mainGamePanel.add(leavePanel);
+
+        // Join the inside game button
+        JButton joinButton = new JButton("Join Game");
+        joinButton.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        joinButton.setPreferredSize(new Dimension(120, 40));
+
+        JPanel joinPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        joinPanel.add(joinButton);
+
+        joinPanel.setBounds(10, mainGamePanel.getHeight() - 55, 130, 50);
+        mainGamePanel.add(joinPanel);
+
+        joinButton.addActionListener(e -> joinPanel.setVisible(false)); // just disspears for now
+
+
+        mainGamePanel.setComponentZOrder(leavePanel, 0);
+        mainGamePanel.setComponentZOrder(joinPanel, 1);
+        mainGamePanel.setComponentZOrder(canvas, 2);
 
         gameFrame.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
