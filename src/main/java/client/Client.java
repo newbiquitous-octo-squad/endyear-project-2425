@@ -282,7 +282,7 @@ public class Client {
 
                 Object[] message = {
                         "Server name", nameField,
-                        "Your Name: ", usernameField // This does nothing for now
+                        "Your Name: ", usernameField
                 };
                 int option = JOptionPane.showConfirmDialog(frame, message, "Join", JOptionPane.OK_CANCEL_OPTION);
                 if (option == JOptionPane.OK_OPTION) {
@@ -298,22 +298,24 @@ public class Client {
                         switch (m) {
                             case ServerFoundMessage found:
                                 serverPort = found.port;
+                                break;
                             default:
-                                // serverPort is already -1
+                                // serverPort still -1
                         }
-                        String serverName = nameField.getText();
-                        frame.dispose();
-                        startGameServer(serverName);
                     } catch (Exception ex) {
-                        System.err.println("UH OH");
+                        System.err.println("Error while connecting to server");
                         ex.printStackTrace();
                     }
-                    if (serverPort != -1)
-                        startListen(Proxy.HOST, serverPort);
 
-                    else {
-                        // TODO
+                    if (serverPort == -1) {
+                        JOptionPane.showMessageDialog(frame, "Server not found. Please check the server name and try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
                     }
+
+                    String serverName = nameField.getText();
+                    frame.dispose();
+                    startGameServer(serverName);
+                    startListen(Proxy.HOST, serverPort);
                 }
             });
 
@@ -326,5 +328,9 @@ public class Client {
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         });
+    }
+
+    public boolean checkUsername(String username) {
+        return true; // Centralize username list and then do the check here
     }
 }
