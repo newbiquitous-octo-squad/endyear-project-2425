@@ -294,7 +294,7 @@ public class Client {
                 // Making a message object for what comes next
                 Object[] message = {
                         "Server Name:", sNameField,
-                        "Your Name: ", yNameField
+                        "Your Name: ", yNameField,
                 };
 
                 // Creates that panel/dialog that pops up with; you can specify the frame it spawns above,
@@ -310,6 +310,11 @@ public class Client {
                     System.out.println(username + " is now hosting " + serverName);
 
                     startServer(serverName); // Our function
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    }
                     startListen(Proxy.HOST, Proxy.PORT);
 
                     // TODO: REPLACE THIS WITH JOINING THE SERVER AND BEHAVE AS NORMAL CLIENT FROM HEREIN
@@ -373,7 +378,4 @@ public class Client {
         });
     }
 
-    public boolean checkUsername(String username) {
-        return true; // Centralize username list and then do the check here
-    }
 }

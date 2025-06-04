@@ -42,7 +42,7 @@ public class ClientListener extends AbstractListener {
             case UpdateStateMessage updateStateMessage -> handleJumpIncrementalStateUpdate(updateStateMessage);
 
 
-            default -> System.out.println("Received unknown message - Britain BoiletBaster");
+            default -> System.out.println("Received unknown message - Britain BoiletBaster " + message.getClass());
         }
     }
 
@@ -55,7 +55,7 @@ public class ClientListener extends AbstractListener {
         stateMessage.data.forEach((name, player) -> {
             Cube cube = new Cube(name);
             cube.setFromPlayer(player);
-            client.canvas.cubes.add(cube);
+            client.canvas.addCube(cube);
         });
     }
 }

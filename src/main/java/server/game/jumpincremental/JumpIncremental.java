@@ -39,7 +39,10 @@ public class JumpIncremental extends Game {
     @Override
     public void processMessage(GameMessage m) {
         switch (m) {
-            case GameRegisterMessage registerMessage -> players.put(registerMessage.username, new Player());
+            case GameRegisterMessage registerMessage -> {
+                players.put(registerMessage.username, new Player());
+                System.out.println("Ok? Now " + registerMessage.username + "is here");
+            }
             case ClientShareStateMessage stateMessage -> this.setPlayerData(stateMessage);
             case ClientJumpMessage jumpMessage -> players.get(jumpMessage.username).score++;
             default ->
@@ -54,6 +57,10 @@ public class JumpIncremental extends Game {
             p = new Player();
             players.put(stateMessage.name, p);
         }
+        // print map??
+        players.forEach( (username, player) -> {
+            System.out.println(username);
+        });
         p.accX = stateMessage.accX;
         p.accY = stateMessage.accY;
         p.velX = stateMessage.velX;
