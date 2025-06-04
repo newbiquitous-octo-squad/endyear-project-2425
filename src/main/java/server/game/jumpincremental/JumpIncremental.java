@@ -50,6 +50,10 @@ public class JumpIncremental extends Game {
     public void setPlayerData(ClientShareStateMessage stateMessage) {
         System.out.println("This is have been called? - setplayerdat a- britain oybruvinnit master");
         Player p = players.get(stateMessage.name);
+        if (!players.containsKey(stateMessage.name)) {
+            p = new Player();
+            players.put(stateMessage.name, p);
+        }
         p.accX = stateMessage.accX;
         p.accY = stateMessage.accY;
         p.velX = stateMessage.velX;

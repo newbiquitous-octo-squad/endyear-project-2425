@@ -15,6 +15,9 @@ public class Cube {
     private int floorHeight = 400;
     private int canvasWidth = 500;
 
+    public Cube(String username) {
+        this.username = username;
+    }
     public Cube(int x, int y, int size, String username, Color color) {
         this.x = x;
         this.y = y;
@@ -23,7 +26,7 @@ public class Cube {
         this.velocityX = 0;
         this.velocityY = 0;
         this.accelerationX = 0;
-        this.accelerationY = 0;
+        this.accelerationY = 1;
         this.username = username;
     }
 

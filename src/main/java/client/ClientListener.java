@@ -1,8 +1,10 @@
 package client;
 
+import client.game.Cube;
 import global.AbstractListener;
 import global.ConnectionData;
 import global.protocol.*;
+import global.protocol.game.jumpincremental.ClientShareStateMessage;
 import global.protocol.game.jumpincremental.UpdateStateMessage;
 import server.game.jumpincremental.Player;
 
@@ -39,6 +41,7 @@ public class ClientListener extends AbstractListener {
 
             case UpdateStateMessage updateStateMessage -> handleJumpIncrementalStateUpdate(updateStateMessage);
 
+
             default -> System.out.println("Received unknown message - Britain BoiletBaster");
         }
     }
@@ -46,7 +49,13 @@ public class ClientListener extends AbstractListener {
     private void handleJumpIncrementalStateUpdate(UpdateStateMessage stateMessage) {
         client.canvas.cubes.forEach(cube -> {
             cube.setFromPlayer(stateMessage.data.get(cube.getUsername()));
+            stateMessage.data.remove(cube.getUsername());
             System.out.println("Resetting cube state");
+        });
+        stateMessage.data.forEach((name, player) -> {
+            Cube cube = new Cube(name);
+            cube.setFromPlayer(player);
+            client.canvas.cubes.add(cube);
         });
     }
 }
