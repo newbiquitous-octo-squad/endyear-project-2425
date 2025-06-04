@@ -46,6 +46,7 @@ public class ClientListener extends AbstractListener {
     private void handleJumpIncrementalStateUpdate(UpdateStateMessage stateMessage) {
         client.canvas.cubes.forEach(cube -> {
             cube.setFromPlayer(stateMessage.data.get(cube.getUsername()));
+            System.out.println("Resetting cube state");
         });
     }
 }

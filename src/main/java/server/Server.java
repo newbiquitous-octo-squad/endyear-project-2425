@@ -1,6 +1,7 @@
 package server;
 
 import global.ConnectionData;
+import global.GameType;
 import global.Sender;
 import global.protocol.PingMessage;
 import global.protocol.ServerStartupInfoMessage;
@@ -20,6 +21,8 @@ public class Server implements Runnable {
     private ServerData serverData;
     private final List<String> usernames = Collections.synchronizedList(new ArrayList<>());
     private Game selectedGame;
+    private volatile boolean running = true;
+    private ConnectionData proxyConnectionData;
 
     public Server(ServerData serverData) {
         this.serverData = serverData;
@@ -29,7 +32,7 @@ public class Server implements Runnable {
     public void run() {
         try {
             Socket socket = new Socket(Proxy.HOST, Proxy.PORT);
-            ConnectionData proxyConnectionData = new ConnectionData(socket);
+            proxyConnectionData = new ConnectionData(socket);
             selectedGame = new JumpIncremental(proxyConnectionData);
             ServerListener listener = new ServerListener(proxyConnectionData, this);
             new Thread(listener).start();
@@ -38,7 +41,7 @@ public class Server implements Runnable {
 
             // send a ping whenever the user types anything
             Scanner s = new Scanner(System.in);
-            while (true) {
+            while (running) {
                 s.nextLine();
                 Sender.send(new PingMessage(), proxyConnectionData);
             }
@@ -56,7 +59,14 @@ public class Server implements Runnable {
         return selectedGame;
     }
 
-    public void setSelectedGame(Game selectedGame) {
-        this.selectedGame = selectedGame;
+    public void setSelectedGame(GameType game) {
+        selectedGame = switch (game) {
+            case JUMP_INCREMENTAL:
+                yield new JumpIncremental(proxyConnectionData);
+        };
+    }
+
+    public void stop() {
+        running = false;
     }
 }

@@ -59,6 +59,8 @@ public class Cube {
     }
 
     public void setFromPlayer(Player p) {
+        System.out.println(velocityX);
+        System.out.println(p.velX);
         x = p.posX;
         y = p.posY;
         velocityX = p.velX;

@@ -12,7 +12,6 @@ public interface Sender {
     static void send(Message m, ConnectionData receiver) {
         ObjectOutputStream out = receiver.getOutput();
         try {
-            System.out.println("Sending message " + m.getClass().getSimpleName());
             out.writeObject(m);
             out.flush();
         } catch (IOException e) {

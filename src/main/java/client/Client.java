@@ -11,17 +11,24 @@ import global.protocol.ClientLeaveMessage;
 import global.protocol.Message;
 import global.protocol.central.GetServerRequestMessage;
 import global.protocol.central.ServerFoundMessage;
+import global.protocol.game.GameRegisterMessage;
+import global.protocol.game.jumpincremental.ClientShareStateMessage;
 import proxy.Proxy;
 import server.Server;
+import server.game.jumpincremental.JumpIncremental;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.net.Socket;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Client {
     private Server server;
     String username;
+    private boolean inGame = false;
+    private Timer timer = new Timer();
 
     private ConnectionData connectionData;
 
@@ -50,8 +57,12 @@ public class Client {
         new Thread(server).start();
     }
 
+    public void stopServer() {
+        server.stop();
+    }
+
     // Like the game stuff (the actual server game windows)
-    public void startGameServer(String serverName) {
+    public void mainGameWindow(String serverName) {
         JFrame gameFrame = new JFrame("YourBCAYourBCA - Server: " + serverName + "; Username: " + username);
 
         gameFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -63,7 +74,6 @@ public class Client {
 
         canvas = new GameCanvas();
         Cube cube = new Cube(100, 100, 50, username, new Color((int) (Math.random()*206 + 50), (int) (Math.random()*206 + 50), (int) (Math.random()*206 + 50)));
-        canvas.addCube(cube);
 
         for (Cube c : canvas.cubes) {
             c.setAcceleration(0, 1);
@@ -79,7 +89,6 @@ public class Client {
         new Thread(canvas).start();
 
         gameFrame.setContentPane(mainGamePanel);
-
 
 
         // Chat stuff
@@ -150,7 +159,18 @@ public class Client {
         joinPanel.setBounds(10, mainGamePanel.getHeight() - 55, 130, 50);
         mainGamePanel.add(joinPanel);
 
-        joinButton.addActionListener(e -> joinPanel.setVisible(false)); // just disspears for now
+        joinButton.addActionListener(e -> {
+            Sender.send(new GameRegisterMessage(username), connectionData);
+            timer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    Sender.send(new ClientShareStateMessage(username, cube.getX(), cube.getY(), cube.velocityX, cube.velocityY, cube.accelerationX, cube.accelerationY), connectionData);
+                }
+            }, 100, JumpIncremental.TICKDELAY);
+            joinPanel.setVisible(false);
+            canvas.addCube(cube);
+            inGame = true;
+        });
 
 
         mainGamePanel.setComponentZOrder(leavePanel, 0);
@@ -179,6 +199,8 @@ public class Client {
         gameFrame.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
+                if (!inGame) return;
+
                 if (e.getKeyCode() == KeyEvent.VK_SLASH) {
                     chatInput.requestFocus();
                 } else if (!chatInput.isFocusOwner()) {
@@ -292,7 +314,7 @@ public class Client {
 
                     // TODO: REPLACE THIS WITH JOINING THE SERVER AND BEHAVE AS NORMAL CLIENT FROM HEREIN
                     frame.dispose();
-                    startGameServer(serverName);
+                    mainGameWindow(serverName);
                 }
             });
 
@@ -335,7 +357,7 @@ public class Client {
 
                     String serverName = nameField.getText();
                     frame.dispose();
-                    startGameServer(serverName);
+                    mainGameWindow(serverName);
                     startListen(Proxy.HOST, serverPort);
                 }
             });

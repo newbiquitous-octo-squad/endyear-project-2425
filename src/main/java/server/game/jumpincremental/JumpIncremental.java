@@ -16,6 +16,8 @@ public class JumpIncremental extends Game {
     private Map<String, Player> players;
     private Timer timer = new Timer();
 
+    public static int TICKDELAY = 1000;
+
     public JumpIncremental(ConnectionData connectionData) {
         this.players = new HashMap<>();
         running = true;
@@ -24,7 +26,7 @@ public class JumpIncremental extends Game {
             public void run() {
                 Sender.send(new UpdateStateMessage(players), connectionData);
             }
-        }, 100, 100);
+        }, 100, TICKDELAY);
     }
 
     @Override
@@ -46,6 +48,7 @@ public class JumpIncremental extends Game {
     }
 
     public void setPlayerData(ClientShareStateMessage stateMessage) {
+        System.out.println("This is have been called? - setplayerdat a- britain oybruvinnit master");
         Player p = players.get(stateMessage.name);
         p.accX = stateMessage.accX;
         p.accY = stateMessage.accY;
