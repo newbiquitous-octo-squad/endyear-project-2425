@@ -29,6 +29,7 @@ public class Client {
     String username;
     private boolean inGame = false;
     private Timer timer = new Timer();
+    private JFrame frame;
 
     private ConnectionData connectionData;
 
@@ -40,9 +41,30 @@ public class Client {
     }
 
     // Our functions
-    public void startListen(String host, int port) {
+    public void startListen(String host, String serverName) {
+        int serverPort = -1;
         try {
-            connectionData = new ConnectionData(new Socket(host, port));
+            ConnectionData connectionData = new ConnectionData(new Socket(Proxy.HOST, Proxy.SHARER_PORT));
+            Sender.send(new GetServerRequestMessage(serverName), connectionData);
+            Message m = (Message) connectionData.getInput().readObject();
+            switch (m) {
+                case ServerFoundMessage found:
+                    serverPort = found.port;
+                    break;
+                default:
+                    // serverPort still -1
+            }
+        } catch (Exception ex) {
+            System.err.println("Error while connecting to server");
+            ex.printStackTrace();
+        }
+
+        if (serverPort == -1) {
+            JOptionPane.showMessageDialog(frame, "Server not found. Please check the server name and try again.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+        try {
+            connectionData = new ConnectionData(new Socket(host, serverPort));
             new Thread(
                     new ClientListener(connectionData, this)
             ).start();
@@ -246,7 +268,7 @@ public class Client {
             }
 
             // JFrame is like the window you're making
-            JFrame frame = new JFrame("YourBCAYourBCA");
+            frame = new JFrame("YourBCAYourBCA");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setSize(600, 400);
 
@@ -315,7 +337,7 @@ public class Client {
                     } catch (InterruptedException ex) {
                         throw new RuntimeException(ex);
                     }
-                    startListen(Proxy.HOST, Proxy.PORT);
+                    startListen(Proxy.HOST, serverName);
 
                     // TODO: REPLACE THIS WITH JOINING THE SERVER AND BEHAVE AS NORMAL CLIENT FROM HEREIN
                     frame.dispose();
@@ -335,35 +357,11 @@ public class Client {
                 int option = JOptionPane.showConfirmDialog(frame, message, "Join", JOptionPane.OK_CANCEL_OPTION);
                 if (option == JOptionPane.OK_OPTION) {
                     username = usernameField.getText();
-
                     System.out.println(username);
-
-                    int serverPort = -1;
-                    try {
-                        ConnectionData connectionData = new ConnectionData(new Socket(Proxy.HOST, Proxy.SHARER_PORT));
-                        Sender.send(new GetServerRequestMessage(nameField.getText()), connectionData);
-                        Message m = (Message) connectionData.getInput().readObject();
-                        switch (m) {
-                            case ServerFoundMessage found:
-                                serverPort = found.port;
-                                break;
-                            default:
-                                // serverPort still -1
-                        }
-                    } catch (Exception ex) {
-                        System.err.println("Error while connecting to server");
-                        ex.printStackTrace();
-                    }
-
-                    if (serverPort == -1) {
-                        JOptionPane.showMessageDialog(frame, "Server not found. Please check the server name and try again.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
                     String serverName = nameField.getText();
                     frame.dispose();
                     mainGameWindow(serverName);
-                    startListen(Proxy.HOST, serverPort);
+                    startListen(Proxy.HOST, serverName);
                 }
             });
 
