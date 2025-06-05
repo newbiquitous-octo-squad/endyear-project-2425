@@ -1,13 +1,12 @@
 package global.protocol.game.jumpincremental;
 
 import global.protocol.game.GameMessage;
-import server.game.jumpincremental.Player;
 
-import java.util.Map;
+import java.util.List;
 
 public class UpdateStateMessage extends GameMessage {
-    public Map<String, Player> data;
-    public UpdateStateMessage(Map<String, Player> data) {
-        this.data = data;
+    public PlayerData[] data;
+    public UpdateStateMessage(List<PlayerData> data) {
+        this.data = data.toArray(new PlayerData[0]);
     }
 }

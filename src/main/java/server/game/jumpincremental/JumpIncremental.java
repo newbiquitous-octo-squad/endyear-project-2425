@@ -4,26 +4,30 @@ import global.ConnectionData;
 import global.Sender;
 import global.protocol.game.GameMessage;
 import global.protocol.game.GameRegisterMessage;
+import global.protocol.game.GameUnregisterMessage;
 import global.protocol.game.jumpincremental.ClientJumpMessage;
 import global.protocol.game.jumpincremental.ClientShareStateMessage;
+import global.protocol.game.jumpincremental.PlayerData;
 import global.protocol.game.jumpincremental.UpdateStateMessage;
 import server.game.Game;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class JumpIncremental extends Game {
     private ConnectionData connectionData;
-    private Map<String, Player> players;
+    private List<PlayerData> players;
     private Timer timer = new Timer();
 
     public static int TICKDELAY = 1000;
 
     public JumpIncremental(ConnectionData connectionData) {
-        this.players = new HashMap<>();
+        this.players = new ArrayList<>();
         running = true;
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
+                System.out.println("Server: Sending these players: " + Arrays.toString(players.stream().map(p -> p.name).toArray()));
                 Sender.send(new UpdateStateMessage(players), connectionData);
             }
         }, 100, TICKDELAY);
@@ -40,33 +44,22 @@ public class JumpIncremental extends Game {
     public void processMessage(GameMessage m) {
         switch (m) {
             case GameRegisterMessage registerMessage -> {
-                players.put(registerMessage.username, new Player());
-                System.out.println("Ok? Now " + registerMessage.username + "is here");
+                PlayerData newPlayer = new PlayerData();
+                newPlayer.name = registerMessage.username;
+                players.add(newPlayer);
+                System.out.println("Ok? Now " + registerMessage.username + " is here");
+                System.out.println("The new player list is: " + players.toString());
             }
+            case GameUnregisterMessage unregisterMessage -> players.stream().filter(p -> p.name.equals(unregisterMessage.username)).findFirst().ifPresent(p -> players.remove(p));
             case ClientShareStateMessage stateMessage -> this.setPlayerData(stateMessage);
-            case ClientJumpMessage jumpMessage -> players.get(jumpMessage.username).score++;
+            case ClientJumpMessage jumpMessage -> players.stream().filter(playerData -> playerData.name.equals(jumpMessage.username)).findFirst().ifPresent(player -> player.score++);
             default ->
                     System.out.println("Saw a message that was called " + m.getClass().getSimpleName() + ", idk what that means tho. Taitan MoiletDisaster");
         }
     }
 
     public void setPlayerData(ClientShareStateMessage stateMessage) {
-        System.out.println("This is have been called? - setplayerdat a- britain oybruvinnit master");
-        Player p = players.get(stateMessage.name);
-        if (!players.containsKey(stateMessage.name)) {
-            p = new Player();
-            players.put(stateMessage.name, p);
-        }
-        // print map??
-        players.forEach( (username, player) -> {
-            System.out.println(username);
-        });
-        p.accX = stateMessage.accX;
-        p.accY = stateMessage.accY;
-        p.velX = stateMessage.velX;
-        p.velY = stateMessage.velY;
-        p.posX = stateMessage.posX;
-        p.posY = stateMessage.posY;
+        players.stream().filter(player -> player.name.equals(stateMessage.name)).findFirst();
     }
 
     @Override

@@ -1,14 +1,12 @@
 package client.game;
 
-import server.game.jumpincremental.Player;
+import global.protocol.game.jumpincremental.PlayerData;
 
 import java.awt.*;
 
 public class Cube {
-    private int x, y, size;
     private Color color;
-    public int velocityX, velocityY;
-    public int accelerationX, accelerationY;
+    private PlayerData playerData = new PlayerData();
 
     private String username;
 
@@ -19,79 +17,72 @@ public class Cube {
         this.username = username;
     }
     public Cube(int x, int y, int size, String username, Color color) {
-        this.x = x;
-        this.y = y;
-        this.size = size;
+        this.playerData.x = x;
+        this.playerData.y = y;
+        this.playerData.size = size;
         this.color = color;
-        this.velocityX = 0;
-        this.velocityY = 0;
-        this.accelerationX = 0;
-        this.accelerationY = 1;
+        this.playerData.velocityX = 0;
+        this.playerData.velocityY = 0;
+        this.playerData.accelerationX = 0;
+        this.playerData.accelerationY = 1;
         this.username = username;
     }
 
     public void update() {
-        velocityX += accelerationX;
-        velocityY += accelerationY;
-        x += velocityX;
-        y += velocityY;
+        playerData.velocityX += playerData.accelerationX;
+        playerData.velocityY += playerData.accelerationY;
+        playerData.x += playerData.velocityX;
+        playerData.y += playerData.velocityY;
 
-        if (y + size > floorHeight) {
-            y = floorHeight - size;
-            velocityY = 0;
+        if (playerData.y + playerData.size > floorHeight) {
+            playerData.y = floorHeight - playerData.size;
+            playerData.velocityY = 0;
         }
 
-        if (x + size > canvasWidth) {
-            x = canvasWidth - size;
+        if (playerData.x + playerData.size > canvasWidth) {
+            playerData.x = canvasWidth - playerData.size;
         }
 
-        if (x < 0) {
-            x = 0;
+        if (playerData.x < 0) {
+            playerData.x = 0;
         }
     }
 
     public void draw(Graphics g) {
         g.setColor(color);
-        g.fillRect(x, y, size, size);
+        g.fillRect(playerData.x, playerData.y, playerData.size, playerData.size);
 
         g.setColor(Color.BLACK);
         FontMetrics fm = g.getFontMetrics();
-        int textX = x + (size - fm.stringWidth(username)) / 2;
-        int textY = y + (size - fm.getHeight()) / 2 + fm.getAscent();
+        int textX = playerData.x + (playerData.size - fm.stringWidth(username)) / 2;
+        int textY = playerData.y + (playerData.size - fm.getHeight()) / 2 + fm.getAscent();
         g.drawString(username, textX, textY);
     }
 
-    public void setFromPlayer(Player p) {
-        System.out.println(velocityX);
-        System.out.println(p.velX);
-        x = p.posX;
-        y = p.posY;
-        velocityX = p.velX;
-        velocityY = p.velY;
-        accelerationX = p.accX;
-        accelerationY = p.accY;
+    public void setFromPlayer(PlayerData p) {
+        this.playerData = p;
     }
 
     public void setVelocity(int velocityX, int velocityY) {
-        this.velocityX = velocityX;
-        this.velocityY = velocityY;
+        this.playerData.velocityX = velocityX;
+        this.playerData.velocityY = velocityY;
     }
 
     public void setAcceleration(int accelerationX, int accelerationY) {
-        this.accelerationX = accelerationX;
-        this.accelerationY = accelerationY;
+        this.playerData.accelerationX = accelerationX;
+        this.playerData.accelerationY = accelerationY;
     }
 
     public int getY() {
-        return y;
+        return playerData.y;
     }
 
     public int getX() {
-        return x;
+        return playerData.x;
     }
 
     public int getHeight() {
-        return size;
+        return playerData.size;
     }
 
     public int getFloorHeight() {
@@ -100,5 +91,9 @@ public class Cube {
 
     public String getUsername() {
         return username;
+    }
+
+    public PlayerData getPlayerData() {
+        return playerData;
     }
 }

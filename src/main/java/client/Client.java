@@ -12,6 +12,7 @@ import global.protocol.Message;
 import global.protocol.central.GetServerRequestMessage;
 import global.protocol.central.ServerFoundMessage;
 import global.protocol.game.GameRegisterMessage;
+import global.protocol.game.GameUnregisterMessage;
 import global.protocol.game.jumpincremental.ClientShareStateMessage;
 import proxy.Proxy;
 import server.Server;
@@ -156,6 +157,7 @@ public class Client {
         leaveButton.addActionListener(e -> {
             // TODO: Handle changing server ownership when the host leaves, for now doesn't kill server
             Sender.send(new ClientLeaveMessage(username), connectionData);
+            Sender.send(new GameUnregisterMessage(username), connectionData);
             gameFrame.dispose();
             openMainFrame();
         });
@@ -186,7 +188,7 @@ public class Client {
             timer.scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {
-                    Sender.send(new ClientShareStateMessage(username, cube.getX(), cube.getY(), cube.velocityX, cube.velocityY, cube.accelerationX, cube.accelerationY), connectionData);
+                    Sender.send(new ClientShareStateMessage(username, cube.getPlayerData()), connectionData);
                 }
             }, 100, JumpIncremental.TICKDELAY);
             joinPanel.setVisible(false);
@@ -229,14 +231,14 @@ public class Client {
                     switch (e.getKeyCode()) {
                         case KeyEvent.VK_W:
                             if (cube.getY() + cube.getHeight() == cube.getFloorHeight()) {
-                                cube.setVelocity(cube.velocityX, -15);
+                                cube.setVelocity(cube.getPlayerData().velocityX, -15);
                             }
                             break;
                         case KeyEvent.VK_A:
-                            cube.setVelocity(-5, cube.velocityY);
+                            cube.setVelocity(-5, cube.getPlayerData().velocityY);
                             break;
                         case KeyEvent.VK_D:
-                            cube.setVelocity(5, cube.velocityY);
+                            cube.setVelocity(5, cube.getPlayerData().velocityY);
                             break;
                     }
                 }
@@ -249,7 +251,7 @@ public class Client {
                         case KeyEvent.VK_W:
                         case KeyEvent.VK_A:
                         case KeyEvent.VK_D:
-                            cube.setVelocity(0, cube.velocityY);
+                            cube.setVelocity(0, cube.getPlayerData().velocityY);
                             break;
                     }
                 }

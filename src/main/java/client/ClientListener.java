@@ -4,10 +4,10 @@ import client.game.Cube;
 import global.AbstractListener;
 import global.ConnectionData;
 import global.protocol.*;
-import global.protocol.game.jumpincremental.ClientShareStateMessage;
+import global.protocol.game.jumpincremental.PlayerData;
 import global.protocol.game.jumpincremental.UpdateStateMessage;
-import server.game.jumpincremental.Player;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public class ClientListener extends AbstractListener {
@@ -28,7 +28,6 @@ public class ClientListener extends AbstractListener {
             case ChatMessage chatMessage -> {
                 if (!chatMessage.sender.equals(client.username)) {
                     client.chatArea.append(chatMessage.toString());
-                    System.out.println("Message appended!");
                 }
             }
             case ClientLeaveMessage clientLeaveMessage -> {
@@ -47,19 +46,15 @@ public class ClientListener extends AbstractListener {
     }
 
     private void handleJumpIncrementalStateUpdate(UpdateStateMessage stateMessage) {
-        client.canvas.cubes.forEach(cube -> {
-            if (stateMessage.data.containsKey(cube.getUsername())) {
-                cube.setFromPlayer(stateMessage.data.get(cube.getUsername()));
-                stateMessage.data.remove(cube.getUsername());
-                System.out.println("Resetting cube state");
-            } else {
-                System.out.println("Coob nat fownd - " + cube.getUsername());
-            }
-        });
-        stateMessage.data.forEach((name, player) -> {
-            Cube cube = new Cube(name);
-            cube.setFromPlayer(player);
-            client.canvas.addCube(cube);
-        });
+        for (PlayerData playerData : stateMessage.data) {
+            System.out.println("I am a client reading a name called: " + playerData.name);
+            client.canvas.cubes.stream().filter(cube -> cube.getUsername().equals(playerData.name)).findFirst().ifPresentOrElse(
+                    cube -> cube.setFromPlayer(playerData), () -> {
+                        Cube c = new Cube(playerData.name);
+                        c.setFromPlayer(playerData);
+                        client.canvas.addCube(c);
+                    });
+        }
     }
+
 }

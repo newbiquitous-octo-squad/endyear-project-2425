@@ -19,7 +19,6 @@ public class ServerListener extends AbstractListener {
 
     @Override
     public void processMessage(Message message) {
-        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAааасжаксдаксдамскдаскдндгхшригихшрги");
         switch (message) {
             case ChatMessage chatMessage -> {
                 System.out.println("Forwarding message from " + chatMessage.sender);
