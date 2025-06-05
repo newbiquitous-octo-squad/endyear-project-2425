@@ -34,6 +34,7 @@ public class GameCanvas extends Canvas implements Runnable {
         while (running) {
             for (Cube cube : cubes) {
                 cube.update();
+//                System.out.println(cube.getUsername() + " " + cube.getX() + " " + cube.getY());
             }
             repaint();
 

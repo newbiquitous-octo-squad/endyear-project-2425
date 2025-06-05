@@ -47,11 +47,13 @@ public class ClientListener extends AbstractListener {
 
     private void handleJumpIncrementalStateUpdate(UpdateStateMessage stateMessage) {
         for (PlayerData playerData : stateMessage.data) {
-            System.out.println("I am a client reading a name called: " + playerData.name);
             client.canvas.cubes.stream().filter(cube -> cube.getUsername().equals(playerData.name)).findFirst().ifPresentOrElse(
-                    cube -> cube.setFromPlayer(playerData), () -> {
-                        Cube c = new Cube(playerData.name);
-                        c.setFromPlayer(playerData);
+                    cube -> {
+                        int oldX = cube.getX();
+                        cube.setFromPlayer(playerData);
+                        System.out.println("Changed the value of cube " + cube.getUsername() + " from " + oldX + " to " + cube.getX());
+                    }, () -> {
+                        Cube c = new Cube(playerData);
                         client.canvas.addCube(c);
                     });
         }

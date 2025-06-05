@@ -5,27 +5,16 @@ import global.protocol.game.jumpincremental.PlayerData;
 import java.awt.*;
 
 public class Cube {
-    private Color color;
-    private PlayerData playerData = new PlayerData();
-
-    private String username;
+    private PlayerData playerData;
 
     private int floorHeight = 400;
     private int canvasWidth = 500;
 
     public Cube(String username) {
-        this.username = username;
+        playerData = new PlayerData(username);
     }
-    public Cube(int x, int y, int size, String username, Color color) {
-        this.playerData.x = x;
-        this.playerData.y = y;
-        this.playerData.size = size;
-        this.color = color;
-        this.playerData.velocityX = 0;
-        this.playerData.velocityY = 0;
-        this.playerData.accelerationX = 0;
-        this.playerData.accelerationY = 1;
-        this.username = username;
+    public Cube(PlayerData playerData) {
+        this.playerData = playerData;
     }
 
     public void update() {
@@ -49,14 +38,15 @@ public class Cube {
     }
 
     public void draw(Graphics g) {
-        g.setColor(color);
+        g.setColor(playerData.color);
         g.fillRect(playerData.x, playerData.y, playerData.size, playerData.size);
+
 
         g.setColor(Color.BLACK);
         FontMetrics fm = g.getFontMetrics();
-        int textX = playerData.x + (playerData.size - fm.stringWidth(username)) / 2;
+        int textX = playerData.x + (playerData.size - fm.stringWidth(playerData.name)) / 2;
         int textY = playerData.y + (playerData.size - fm.getHeight()) / 2 + fm.getAscent();
-        g.drawString(username, textX, textY);
+        g.drawString(playerData.name, textX, textY);
     }
 
     public void setFromPlayer(PlayerData p) {
@@ -90,7 +80,7 @@ public class Cube {
     }
 
     public String getUsername() {
-        return username;
+        return playerData.name;
     }
 
     public PlayerData getPlayerData() {

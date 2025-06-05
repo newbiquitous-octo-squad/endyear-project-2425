@@ -96,7 +96,7 @@ public class Client {
         mainGamePanel.setBackground(new Color(44, 44, 44));
 
         canvas = new GameCanvas();
-        Cube cube = new Cube(100, 100, 50, username, new Color((int) (Math.random()*206 + 50), (int) (Math.random()*206 + 50), (int) (Math.random()*206 + 50)));
+        Cube cube = new Cube(username);
 
         for (Cube c : canvas.cubes) {
             c.setAcceleration(0, 1);
@@ -185,6 +185,7 @@ public class Client {
 
         joinButton.addActionListener(e -> {
             Sender.send(new GameRegisterMessage(username), connectionData);
+            Sender.send(new ClientShareStateMessage(username, cube.getPlayerData()), connectionData);
             timer.scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {
@@ -341,7 +342,6 @@ public class Client {
                     }
                     startListen(Proxy.HOST, serverName);
 
-                    // TODO: REPLACE THIS WITH JOINING THE SERVER AND BEHAVE AS NORMAL CLIENT FROM HEREIN
                     frame.dispose();
                     mainGameWindow(serverName);
                 }

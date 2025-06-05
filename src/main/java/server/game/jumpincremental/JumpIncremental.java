@@ -11,6 +11,7 @@ import global.protocol.game.jumpincremental.PlayerData;
 import global.protocol.game.jumpincremental.UpdateStateMessage;
 import server.game.Game;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,7 +20,7 @@ public class JumpIncremental extends Game {
     private List<PlayerData> players;
     private Timer timer = new Timer();
 
-    public static int TICKDELAY = 1000;
+    public static int TICKDELAY = 100;
 
     public JumpIncremental(ConnectionData connectionData) {
         this.players = new ArrayList<>();
@@ -27,10 +28,9 @@ public class JumpIncremental extends Game {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                System.out.println("Server: Sending these players: " + Arrays.toString(players.stream().map(p -> p.name).toArray()));
                 Sender.send(new UpdateStateMessage(players), connectionData);
             }
-        }, 100, TICKDELAY);
+        }, 100, TICKDELAY*10);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class JumpIncremental extends Game {
     public void processMessage(GameMessage m) {
         switch (m) {
             case GameRegisterMessage registerMessage -> {
-                PlayerData newPlayer = new PlayerData();
+                PlayerData newPlayer = new PlayerData(registerMessage.username);
                 newPlayer.name = registerMessage.username;
                 players.add(newPlayer);
                 System.out.println("Ok? Now " + registerMessage.username + " is here");
@@ -59,7 +59,11 @@ public class JumpIncremental extends Game {
     }
 
     public void setPlayerData(ClientShareStateMessage stateMessage) {
-        players.stream().filter(player -> player.name.equals(stateMessage.name)).findFirst();
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).name.equals(stateMessage.name)) {
+                players.set(i, stateMessage.playerData);
+            }
+        }
     }
 
     @Override
