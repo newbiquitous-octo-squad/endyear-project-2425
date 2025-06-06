@@ -13,6 +13,7 @@ import global.protocol.central.GetServerRequestMessage;
 import global.protocol.central.ServerFoundMessage;
 import global.protocol.game.GameRegisterMessage;
 import global.protocol.game.GameUnregisterMessage;
+import global.protocol.game.jumpincremental.ClientJumpMessage;
 import global.protocol.game.jumpincremental.ClientShareStateMessage;
 import proxy.Proxy;
 import server.Server;
@@ -233,6 +234,7 @@ public class Client {
                         case KeyEvent.VK_W:
                             if (cube.getY() + cube.getHeight() == cube.getFloorHeight()) {
                                 cube.setVelocity(cube.getPlayerData().velocityX, -15);
+                                Sender.send(new ClientJumpMessage(username), connectionData);
                             }
                             break;
                         case KeyEvent.VK_A:

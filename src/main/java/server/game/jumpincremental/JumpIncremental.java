@@ -20,7 +20,7 @@ public class JumpIncremental extends Game {
     private List<PlayerData> players;
     private Timer timer = new Timer();
 
-    public static int TICKDELAY = 100;
+    public static int TICKDELAY = 16;
 
     public JumpIncremental(ConnectionData connectionData) {
         this.players = new ArrayList<>();
@@ -30,7 +30,7 @@ public class JumpIncremental extends Game {
             public void run() {
                 Sender.send(new UpdateStateMessage(players), connectionData);
             }
-        }, 100, TICKDELAY*10);
+        }, 100, TICKDELAY);
     }
 
     @Override
