@@ -32,6 +32,7 @@ public class Client {
     private boolean inGame = false;
     private Timer timer = new Timer();
     private JFrame frame;
+    private Cube cube;
 
     private ConnectionData connectionData;
 
@@ -97,7 +98,7 @@ public class Client {
         mainGamePanel.setBackground(new Color(44, 44, 44));
 
         canvas = new GameCanvas();
-        Cube cube = new Cube(username);
+        cube = new Cube(username);
 
         for (Cube c : canvas.cubes) {
             c.setAcceleration(0, 1);
@@ -187,12 +188,6 @@ public class Client {
         joinButton.addActionListener(e -> {
             Sender.send(new GameRegisterMessage(username), connectionData);
             Sender.send(new ClientShareStateMessage(username, cube.getPlayerData()), connectionData);
-            timer.scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
-                    Sender.send(new ClientShareStateMessage(username, cube.getPlayerData()), connectionData);
-                }
-            }, 100, JumpIncremental.TICKDELAY);
             joinPanel.setVisible(false);
             canvas.addCube(cube);
             inGame = true;
@@ -379,5 +374,16 @@ public class Client {
             frame.setVisible(true);
         });
     }
+    public void startJumpIncrementalTimer() {
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                Sender.send(new ClientShareStateMessage(username, cube.getPlayerData()), connectionData);
+            }
+        }, 63, JumpIncremental.TICK_DELAY);
+    }
 
+    public boolean isInGame() {
+        return inGame;
+    }
 }

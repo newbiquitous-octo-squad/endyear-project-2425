@@ -18,7 +18,7 @@ public class JumpIncremental extends Game {
     private List<PlayerData> players;
     private Timer timer = new Timer();
 
-    public static int TICKDELAY = 100;
+    public static int TICK_DELAY = 16;
     public static int FLOOR_HEIGHT = 400;
     public static int CANVAS_WIDTH = 500;
 
@@ -30,7 +30,7 @@ public class JumpIncremental extends Game {
             public void run() {
                 Sender.send(new UpdateStateMessage(players), connectionData);
             }
-        }, 100, TICKDELAY);
+        }, 100, TICK_DELAY);
     }
 
     @Override

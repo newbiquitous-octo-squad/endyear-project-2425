@@ -12,6 +12,9 @@ import java.util.Objects;
 
 public class ClientListener extends AbstractListener {
     private Client client;
+
+    private boolean timerRunning = false;
+
     public ClientListener(ConnectionData connectionData, Client client) {
         super(connectionData);
         this.client = client;
@@ -46,6 +49,10 @@ public class ClientListener extends AbstractListener {
     }
 
     private void handleJumpIncrementalStateUpdate(UpdateStateMessage stateMessage) {
+        if (client.isInGame() && !timerRunning) {
+            client.startJumpIncrementalTimer();
+            timerRunning = true;
+        }
         for (PlayerData playerData : stateMessage.data) {
             client.canvas.cubes.stream().filter(cube -> cube.getUsername().equals(playerData.name)).findFirst().ifPresentOrElse(
                     cube -> {

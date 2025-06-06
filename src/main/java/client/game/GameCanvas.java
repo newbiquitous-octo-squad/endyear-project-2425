@@ -1,5 +1,7 @@
 package client.game;
 
+import server.game.jumpincremental.JumpIncremental;
+
 import java.awt.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -44,7 +46,7 @@ public class GameCanvas extends Canvas implements Runnable {
             repaint();
 
             try {
-                Thread.sleep(16);
+                Thread.sleep(JumpIncremental.TICK_DELAY);
             } catch (InterruptedException e) {
                 System.err.println("Game loop interrupted");
                 running = false;
