@@ -23,6 +23,12 @@ public class GameCanvas extends Canvas implements Runnable {
         // Floor
         g.setColor(Color.darkGray);
         g.fillRect(0, getHeight() - 200, getWidth(), 200);
+    }
+
+    @Override
+    public void update(Graphics g) {
+        g.setColor(Color.BLUE);
+        g.fillRect(0, 0, getWidth(), getHeight() - 200);
 
         for (Cube cube : cubes) {
             cube.draw(g);
