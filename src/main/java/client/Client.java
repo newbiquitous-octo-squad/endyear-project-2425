@@ -232,7 +232,7 @@ public class Client {
                 } else if (!chatInput.isFocusOwner()) {
                     switch (e.getKeyCode()) {
                         case KeyEvent.VK_W:
-                            if (cube.getY() + cube.getHeight() == cube.getFloorHeight()) {
+                            if (cube.getY() + cube.getHeight() == JumpIncremental.FLOOR_HEIGHT) {
                                 cube.setVelocity(cube.getPlayerData().velocityX, -15);
                                 Sender.send(new ClientJumpMessage(username), connectionData);
                             }

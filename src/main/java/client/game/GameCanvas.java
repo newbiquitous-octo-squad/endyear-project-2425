@@ -33,13 +33,12 @@ public class GameCanvas extends Canvas implements Runnable {
     public void run() {
         while (running) {
             for (Cube cube : cubes) {
-                cube.update();
-//                System.out.println(cube.getUsername() + " " + cube.getX() + " " + cube.getY());
+                cube.getPlayerData().update();
             }
             repaint();
 
             try {
-                Thread.sleep(16); // FPS
+                Thread.sleep(16);
             } catch (InterruptedException e) {
                 System.err.println("Game loop interrupted");
                 running = false;

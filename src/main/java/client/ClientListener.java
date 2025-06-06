@@ -49,10 +49,9 @@ public class ClientListener extends AbstractListener {
         for (PlayerData playerData : stateMessage.data) {
             client.canvas.cubes.stream().filter(cube -> cube.getUsername().equals(playerData.name)).findFirst().ifPresentOrElse(
                     cube -> {
-                        int oldX = cube.getX();
                         cube.setFromPlayer(playerData);
-                        System.out.println("Changed the value of cube " + cube.getUsername() + " from " + oldX + " to " + cube.getX());
                     }, () -> {
+                        System.out.println("NEW CUBE: " + playerData.name);
                         Cube c = new Cube(playerData);
                         client.canvas.addCube(c);
                     });

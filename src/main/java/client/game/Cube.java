@@ -1,14 +1,13 @@
 package client.game;
 
 import global.protocol.game.jumpincremental.PlayerData;
+import server.game.jumpincremental.JumpIncremental;
 
 import java.awt.*;
 
 public class Cube {
     private PlayerData playerData;
 
-    private int floorHeight = 400;
-    private int canvasWidth = 500;
 
     public Cube(String username) {
         playerData = new PlayerData(username);
@@ -17,25 +16,6 @@ public class Cube {
         this.playerData = playerData;
     }
 
-    public void update() {
-        playerData.velocityX += playerData.accelerationX;
-        playerData.velocityY += playerData.accelerationY;
-        playerData.x += playerData.velocityX;
-        playerData.y += playerData.velocityY;
-
-        if (playerData.y + playerData.size > floorHeight) {
-            playerData.y = floorHeight - playerData.size;
-            playerData.velocityY = 0;
-        }
-
-        if (playerData.x + playerData.size > canvasWidth) {
-            playerData.x = canvasWidth - playerData.size;
-        }
-
-        if (playerData.x < 0) {
-            playerData.x = 0;
-        }
-    }
 
     public void draw(Graphics g) {
         g.setColor(playerData.color);
@@ -73,10 +53,6 @@ public class Cube {
 
     public int getHeight() {
         return playerData.size;
-    }
-
-    public int getFloorHeight() {
-        return floorHeight;
     }
 
     public String getUsername() {

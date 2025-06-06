@@ -11,16 +11,16 @@ import global.protocol.game.jumpincremental.PlayerData;
 import global.protocol.game.jumpincremental.UpdateStateMessage;
 import server.game.Game;
 
-import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class JumpIncremental extends Game {
     private ConnectionData connectionData;
     private List<PlayerData> players;
     private Timer timer = new Timer();
 
-    public static int TICKDELAY = 16;
+    public static int TICKDELAY = 100;
+    public static int FLOOR_HEIGHT = 400;
+    public static int CANVAS_WIDTH = 500;
 
     public JumpIncremental(ConnectionData connectionData) {
         this.players = new ArrayList<>();
@@ -36,6 +36,15 @@ public class JumpIncremental extends Game {
     @Override
     public void run() {
         while (running) {
+            for (PlayerData playerData : players) {
+                playerData.update();
+            }
+            try {
+                Thread.sleep(16);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                stop();
+            }
         }
         timer.cancel();
     }
