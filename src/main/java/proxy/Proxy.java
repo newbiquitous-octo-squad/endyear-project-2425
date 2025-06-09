@@ -17,12 +17,12 @@ import java.util.concurrent.Executors;
 public class Proxy {
     private static final List<ProxyInstance> serverList = Collections.synchronizedList(new ArrayList<>());
     static ExecutorService pool = Executors.newFixedThreadPool(1000);
-    public static final String HOST = "localhost";
+    public static final String HOST = "129.80.150.205";
     public static final int PORT = 12345;
     public static final int SHARER_PORT = 12346;
 
     public static void main(String[] args) {
-        int port = 25000;
+        int port = 20000;
         new Thread(new ServerSharer()).start();
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             while (true) {
