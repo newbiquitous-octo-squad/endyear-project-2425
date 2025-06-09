@@ -308,39 +308,35 @@ public class Client {
 
             // Adding basically an on click event to the button
             hostButton.addActionListener(e -> {
-
-                // JTextField is a one-line text input component
                 JTextField sNameField = new JTextField();
                 JTextField yNameField = new JTextField();
 
-                // Making a message object for what comes next
                 Object[] message = {
                         "Server Name:", sNameField,
                         "Your Name: ", yNameField,
                 };
 
-                // Creates that panel/dialog that pops up with; you can specify the frame it spawns above,
-                // the message object array (like each row with the inputs), the title, and what kind of option icon
-                // you want to appear (error, warning, the question mark thingy)
                 int option = JOptionPane.showConfirmDialog(frame, message, "Start a Server", JOptionPane.OK_CANCEL_OPTION);
 
-                // Logic portion
-                if (option == JOptionPane.OK_OPTION) { // if you submit the form basically
-                    String serverName = sNameField.getText(); // Gets from the text field
+                if (option == JOptionPane.OK_OPTION) {
+                    String serverName = sNameField.getText();
                     username = yNameField.getText();
 
-                    System.out.println(username + " is now hosting " + serverName);
-
-                    startServer(serverName); // Our function
                     try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                    startListen(Proxy.HOST, serverName);
+                        startServer(serverName);
+                        Thread.sleep(100); // Ensure server starts before listening
+                        startListen(Proxy.HOST, serverName);
 
-                    frame.dispose();
-                    mainGameWindow(serverName);
+                        if (connectionData != null && connectionData.getSocket().isConnected()) {
+                            frame.dispose();
+                            mainGameWindow(serverName);
+                        } else {
+                            // Something
+                        }
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(frame, "Error while starting the server.", "Error", JOptionPane.ERROR_MESSAGE);
+                        ex.printStackTrace();
+                    }
                 }
             });
 
@@ -356,11 +352,21 @@ public class Client {
                 int option = JOptionPane.showConfirmDialog(frame, message, "Join", JOptionPane.OK_CANCEL_OPTION);
                 if (option == JOptionPane.OK_OPTION) {
                     username = usernameField.getText();
-                    System.out.println(username);
                     String serverName = nameField.getText();
-                    frame.dispose();
-                    mainGameWindow(serverName);
-                    startListen(Proxy.HOST, serverName);
+
+                    try {
+                        startListen(Proxy.HOST, serverName);
+
+                        if (connectionData != null && connectionData.getSocket().isConnected()) {
+                            frame.dispose();
+                            mainGameWindow(serverName);
+                        } else {
+                            // Something
+                        }
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(frame, "Error while connecting to the server.", "Error", JOptionPane.ERROR_MESSAGE);
+                        ex.printStackTrace();
+                    }
                 }
             });
 
