@@ -12,7 +12,7 @@ public abstract class AbstractListener implements Runnable {
         this.connectionData = connectionData;
     }
 
-    protected void send(Message m, ConnectionData receiver) {
+    protected synchronized void send(Message m, ConnectionData receiver) {
         Sender.send(m, receiver);
     }
 
@@ -23,7 +23,7 @@ public abstract class AbstractListener implements Runnable {
     }
     public abstract void processMessage(Message message);
 
-    protected Optional<Message> readMessage() {
+    protected synchronized Optional<Message> readMessage() {
         try {
             Message out = (Message) connectionData.getInput().readObject();
             return Optional.of(out);

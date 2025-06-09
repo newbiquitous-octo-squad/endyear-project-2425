@@ -8,8 +8,8 @@ import java.io.ObjectOutputStream;
 // This code is needed like all the time since sending things happens everywhere.
 // Solution: put it as a static method in some interface
 // Could be a class; literally doesn't matter
-public interface Sender {
-    static void send(Message m, ConnectionData receiver) {
+public class Sender {
+    public synchronized static void send(Message m, ConnectionData receiver) {
         ObjectOutputStream out = receiver.getOutput();
         try {
             out.writeObject(m);

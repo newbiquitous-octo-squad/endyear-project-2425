@@ -23,7 +23,7 @@ public class ProxyServerListener extends AbstractProxyListener {
     }
 
     public void broadcast(Message message) {
-        System.out.println("Broadcasti(tan toilet master is always watchi)ng: " + message.getClass().getSimpleName());
+//        System.out.println("Broadcasti(tan toilet master is always watchi)ng: " + message.getClass().getSimpleName());
         for (ConnectionData client : clientList) {
             send(message, client);
         }
