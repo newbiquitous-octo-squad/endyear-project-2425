@@ -7,6 +7,8 @@ import global.protocol.*;
 import global.protocol.game.jumpincremental.PlayerData;
 import global.protocol.game.jumpincremental.UpdateStateMessage;
 
+import javax.swing.*;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
@@ -36,6 +38,7 @@ public class ClientListener extends AbstractListener {
             }
             case ClientLeaveMessage clientLeaveMessage -> {
                 client.chatArea.append(clientLeaveMessage.toString());
+                client.canvas.cubes.stream().filter(cube -> cube.getUsername().equals(clientLeaveMessage.username)).findFirst().ifPresent(cube -> client.canvas.cubes.remove(cube));
             }
 
             case ClientJoinMessage clientJoinMessage -> {
@@ -63,7 +66,6 @@ public class ClientListener extends AbstractListener {
                         Cube c = new Cube(playerData);
                         client.canvas.addCube(c);
                     });
-            
         }
     }
 
