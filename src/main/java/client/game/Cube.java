@@ -27,6 +27,10 @@ public class Cube {
         int textX = (int) playerData.x + (int) (playerData.size - fm.stringWidth(playerData.name)) / 2;
         int textY = (int) playerData.y + (int) (playerData.size - fm.getHeight()) / 2 + fm.getAscent();
         g.drawString(playerData.name, textX, textY);
+
+        textY = (int) playerData.y + (int) (playerData.size - fm.getHeight()) / 2 + fm.getAscent() + 12;
+        textX = (int) playerData.x + (int) (playerData.size - fm.stringWidth(Long.toString(playerData.score))) / 2;
+        g.drawString(Long.toString(playerData.score), textX, textY);
     }
 
     public void setFromPlayer(PlayerData p) {
