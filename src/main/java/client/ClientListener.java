@@ -53,6 +53,7 @@ public class ClientListener extends AbstractListener {
     }
 
     private void handleJumpIncrementalStateUpdate(UpdateStateMessage stateMessage) {
+        if (client.canvas == null) return; // rare case where we receive a message before we're ready for it
         if (client.isInGame() && !timerRunning) {
             client.startJumpIncrementalTimer();
             timerRunning = true;
