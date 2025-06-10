@@ -114,16 +114,16 @@ public class Client {
         JLabel waitingLabel = new JLabel("Waiting for host to start...", SwingConstants.CENTER);
         waitingLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
         waitingLabel.setForeground(Color.WHITE);
-        waitingLabel.setBounds(150, 100, 400, 40);
+        waitingLabel.setBounds(150, 70, 400, 40);
 
         ImageIcon icon = new ImageIcon("src/main/java/images/jumpThumbnail.png");
-        Image scaledImage = icon.getImage().getScaledInstance(160, 120, Image.SCALE_SMOOTH);
+        Image scaledImage = icon.getImage().getScaledInstance(400, 300, Image.SCALE_SMOOTH);
         JLabel iconLabel = new JLabel(new ImageIcon(scaledImage));
-        iconLabel.setBounds(260, 180, 160, 120);
+        iconLabel.setBounds(150, 120, 400, 300);
 
         JButton startGameButton = new JButton("Start Game");
         startGameButton.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        startGameButton.setBounds(230, 320, 220, 60);
+        startGameButton.setBounds(240, 440, 220, 60);
 
         boolean isHost = server != null;
         startGameButton.setEnabled(isHost);
