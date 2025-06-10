@@ -24,7 +24,6 @@ public class ConnectionData {
 
     public ConnectionData(Socket socket) throws IOException {
         this.socket = socket;
-        System.out.println(socket.getPort());
         this.output = new ObjectOutputStream(socket.getOutputStream());
         this.input = new ObjectInputStream(socket.getInputStream());
     }

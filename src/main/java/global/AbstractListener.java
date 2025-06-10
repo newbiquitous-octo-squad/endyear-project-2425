@@ -30,7 +30,7 @@ public abstract class AbstractListener implements Runnable {
         } catch (ClassNotFoundException e) {
             System.err.println("Invalid class.");
         } catch (IOException e) {
-            System.err.println("Error Reading Message");
+            System.err.println("Error Reading Message in " + this.getClass().getSimpleName());
             e.printStackTrace();
             close();
         }

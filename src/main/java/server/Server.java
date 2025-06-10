@@ -3,6 +3,7 @@ package server;
 import global.ConnectionData;
 import global.GameType;
 import global.Sender;
+import global.protocol.Message;
 import global.protocol.PingMessage;
 import global.protocol.ServerStartupInfoMessage;
 import global.ServerData;

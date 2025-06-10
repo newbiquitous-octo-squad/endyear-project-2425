@@ -47,9 +47,9 @@ public class Client {
     public void startListen(String host, String serverName) {
         int serverPort = -1;
         try {
-            connectionData = new ConnectionData(new Socket(Proxy.HOST, Proxy.SHARER_PORT));
-            sendMessage(new GetServerRequestMessage(serverName));
-            Message m = (Message) connectionData.getInput().readObject();
+            ConnectionData serverSharerData = new ConnectionData(new Socket(Proxy.HOST, Proxy.SHARER_PORT));
+            Sender.send(new GetServerRequestMessage(serverName), serverSharerData);
+            Message m = (Message) serverSharerData.getInput().readObject();
             switch (m) {
                 case ServerFoundMessage found:
                     serverPort = found.port;
