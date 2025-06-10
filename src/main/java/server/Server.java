@@ -26,6 +26,7 @@ public class Server implements Runnable {
 
     public Server(ServerData serverData) {
         this.serverData = serverData;
+        serverData.setServer(this);
         try {
             Socket socket = new Socket(Proxy.HOST, Proxy.PORT);
             proxyConnectionData = new ConnectionData(socket);
@@ -70,5 +71,9 @@ public class Server implements Runnable {
 
     public void stop() {
         running = false;
+    }
+
+    public ServerData getServerData() {
+        return serverData;
     }
 }
