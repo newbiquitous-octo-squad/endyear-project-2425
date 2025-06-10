@@ -19,14 +19,18 @@ public class Cube {
 
     public void draw(Graphics g) {
         g.setColor(playerData.color);
-        g.fillRect(playerData.x, playerData.y, playerData.size, playerData.size);
+        g.fillRect((int) playerData.x, (int) playerData.y, (int) playerData.size, (int) playerData.size);
 
 
         g.setColor(Color.BLACK);
         FontMetrics fm = g.getFontMetrics();
-        int textX = playerData.x + (playerData.size - fm.stringWidth(playerData.name)) / 2;
-        int textY = playerData.y + (playerData.size - fm.getHeight()) / 2 + fm.getAscent();
+        int textX = (int) playerData.x + (int) (playerData.size - fm.stringWidth(playerData.name)) / 2;
+        int textY = (int) playerData.y + (int) (playerData.size - fm.getHeight()) / 2 + fm.getAscent();
         g.drawString(playerData.name, textX, textY);
+
+        textY = (int) playerData.y + (int) (playerData.size - fm.getHeight()) / 2 + fm.getAscent() + 12;
+        textX = (int) playerData.x + (int) (playerData.size - fm.stringWidth(Long.toString(playerData.score))) / 2;
+        g.drawString(Long.toString(playerData.score), textX, textY);
     }
 
     public void setFromPlayer(PlayerData p) {
@@ -44,15 +48,15 @@ public class Cube {
     }
 
     public int getY() {
-        return playerData.y;
+        return (int) playerData.y;
     }
 
     public int getX() {
-        return playerData.x;
+        return (int) playerData.x;
     }
 
     public int getHeight() {
-        return playerData.size;
+        return (int) playerData.size;
     }
 
     public String getUsername() {

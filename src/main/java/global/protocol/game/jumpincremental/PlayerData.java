@@ -9,7 +9,8 @@ public class PlayerData implements Serializable {
     private static final long serialVersionUID = 1L;
     public String name;
     public long score = 0;
-    public int x, y, size, velocityX, velocityY, accelerationX, accelerationY = 1;
+    public float x, y, size, velocityX, velocityY = 1;
+    public int accelerationX, accelerationY = 1;
     public Color color;
 
     public PlayerData(String username) {
@@ -19,13 +20,22 @@ public class PlayerData implements Serializable {
         size = 50;
         name = username;
     }
+    public float lerpX(float targetX, float alpha) {
+        this.x += (targetX - this.x) * alpha;
+        return this.x;
+    }
+
+    public float lerpY(float targetY, float alpha) {
+        this.y += (targetY - this.y) * alpha;
+        return this.y;
+    }
 
 
     public void update() {
         velocityX += accelerationX;
         velocityY += accelerationY;
-        x += velocityX;
-        y += velocityY;
+        x = (int) lerpX(x + velocityX, 0.1f);
+        y = (int) lerpY(y + velocityY, 0.1f);
 
         if (y + size > JumpIncremental.FLOOR_HEIGHT) {
             y = JumpIncremental.FLOOR_HEIGHT - size;

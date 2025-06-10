@@ -87,39 +87,78 @@ public class Client {
     }
 
     // Like the game stuff (the actual server game windows)
-    public void mainGameWindow(String serverName) {
-        JFrame gameFrame = new JFrame("YourBCAYourBCA - Server: " + serverName + "; Username: " + username);
+    // In src/main/java/client/Client.java
 
+    public void mainGameWindow(String serverName) {
+        JFrame gameFrame = new JFrame("Cubes Game - Server: " + serverName + "; Username: " + username);
         gameFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         gameFrame.setSize(1000, 600);
 
-        // Main panel
-        JPanel mainGamePanel = new JPanel(new BorderLayout());
+        JPanel rootPanel = new JPanel(new BorderLayout());
+        rootPanel.setBackground(new Color(44, 44, 44));
+
+        // CardLayout for center area like to swap the visibilities
+        CardLayout cardLayout = new CardLayout();
+        JPanel centerPanel = new JPanel(cardLayout);
+
+        // Waiting panel (with start button and icon)
+        JPanel waitingPanel = new JPanel(null);
+        waitingPanel.setBackground(new Color(44, 44, 44));
+
+        JLabel waitingLabel = new JLabel("Waiting for host to start...", SwingConstants.CENTER);
+        waitingLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        waitingLabel.setForeground(Color.WHITE);
+        waitingLabel.setBounds(200, 100, 400, 40);
+
+        ImageIcon icon = new ImageIcon("src/main/java/images/jumpThumbnail.png");
+        Image scaledImage = icon.getImage().getScaledInstance(80, 60, Image.SCALE_SMOOTH);
+        JLabel iconLabel = new JLabel(new ImageIcon(scaledImage));
+        iconLabel.setBounds(320, 180, 80, 60);
+
+        JButton startGameButton = new JButton("Start Game");
+        startGameButton.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        startGameButton.setBounds(250, 270, 220, 60);
+
+        boolean isHost = server != null;
+        startGameButton.setEnabled(isHost);
+
+        waitingPanel.add(waitingLabel);
+        waitingPanel.add(iconLabel);
+        waitingPanel.add(startGameButton);
+
+        // Main game panel (canvas + join/leave)
+        JPanel mainGamePanel = new JPanel(null);
         mainGamePanel.setBackground(new Color(44, 44, 44));
 
         canvas = new GameCanvas();
         cube = new Cube(username);
+        canvas.setBounds(0, 0, 700, 600);
+        mainGamePanel.add(canvas);
 
-        for (Cube c : canvas.cubes) {
-            c.setAcceleration(0, 1);
-            canvas.addCube(c);
-        }
+        JButton leaveButton = new JButton("Leave");
+        leaveButton.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        leaveButton.setBounds(20, 20, 120, 40);
+        mainGamePanel.add(leaveButton);
 
-        gameFrame.add(canvas);
-        gameFrame.pack();
-        gameFrame.setLocationRelativeTo(null);
+        JButton joinButton = new JButton("Join Game");
+        joinButton.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        joinButton.setBounds(20, 500, 130, 50);
+        mainGamePanel.add(joinButton);
 
-        mainGamePanel.add(canvas, BorderLayout.CENTER);
+        mainGamePanel.setComponentZOrder(waitingPanel, 0);
+        mainGamePanel.setComponentZOrder(leaveButton, 1);
+        mainGamePanel.setComponentZOrder(joinButton, 2);
 
-        new Thread(canvas).start();
+        mainGamePanel.setVisible(false);
 
-        gameFrame.setContentPane(mainGamePanel);
+        // Add cards to center panel
+        centerPanel.add(waitingPanel, "waiting");
+        centerPanel.add(mainGamePanel, "game");
 
-
-        // Chat stuff
-        JPanel chatPanel = new JPanel();
-        chatPanel.setLayout(new BorderLayout());
+        // Chat panel (always visible)
+        JPanel chatPanel = new JPanel(new BorderLayout());
         chatPanel.setPreferredSize(new Dimension(300, 600));
+        chatPanel.setBackground(new Color(44, 44, 44));
 
         chatArea = new JTextArea();
         chatArea.setEditable(false);
@@ -133,16 +172,37 @@ public class Client {
         chatInput.setPreferredSize(new Dimension(300, 30));
         chatPanel.add(chatInput, BorderLayout.SOUTH);
 
-        mainGamePanel.add(chatPanel, BorderLayout.EAST);
+        // Add panels to root
+        rootPanel.add(centerPanel, BorderLayout.CENTER);
+        rootPanel.add(chatPanel, BorderLayout.EAST);
 
-        gameFrame.setContentPane(mainGamePanel);
-        gameFrame.setLocationRelativeTo(null);
-        gameFrame.setVisible(true);
+        // Button actions
+        startGameButton.addActionListener(e -> {
+            cardLayout.show(centerPanel, "game");
+            mainGamePanel.setVisible(true);
+            new Thread(canvas).start();
+            gameFrame.requestFocus();
+        });
+
+        joinButton.addActionListener(e -> {
+            sendMessage(new GameRegisterMessage(username));
+            sendMessage(new ClientShareStateMessage(username, cube.getPlayerData()));
+            joinButton.setVisible(false);
+            canvas.addCube(cube);
+            inGame = true;
+        });
+
+        leaveButton.addActionListener(e -> {
+            sendMessage(new ClientLeaveMessage(username));
+            sendMessage(new GameUnregisterMessage(username));
+            gameFrame.dispose();
+            openMainFrame();
+        });
 
         chatInput.addActionListener((ActionEvent e) -> {
             String message = chatInput.getText().trim();
-            chatArea.append(username +  ": " + message + "\n");
             if (!message.isEmpty()) {
+                chatArea.append(username + ": " + message + "\n");
                 chatInput.setText("");
                 if (connectionData == null) {
                     JOptionPane.showMessageDialog(gameFrame, "Connection not established!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -152,67 +212,11 @@ public class Client {
             }
         });
 
-
-        JButton leaveButton = new JButton("Leave");
-        leaveButton.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        leaveButton.setPreferredSize(new Dimension(100, 30));
-        leaveButton.addActionListener(e -> {
-            // TODO: Handle changing server ownership when the host leaves, for now doesn't kill server
-            sendMessage(new ClientLeaveMessage(username));
-            sendMessage(new GameUnregisterMessage(username));
-            gameFrame.dispose();
-            openMainFrame();
-        });
-
-        JPanel leavePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        leavePanel.add(leaveButton);
-
-        mainGamePanel.setLayout(null);
-
-        canvas.setBounds(0, 0, mainGamePanel.getWidth() - chatPanel.getWidth(), mainGamePanel.getHeight());
-
-        leavePanel.setBounds(10, 10, 108, 40);
-        mainGamePanel.add(leavePanel);
-
-        // Join the inside game button
-        JButton joinButton = new JButton("Join Game");
-        joinButton.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        joinButton.setPreferredSize(new Dimension(120, 40));
-
-        JPanel joinPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        joinPanel.add(joinButton);
-
-        joinPanel.setBounds(10, mainGamePanel.getHeight() - 55, 130, 50);
-        mainGamePanel.add(joinPanel);
-
-        joinButton.addActionListener(e -> {
-            sendMessage(new GameRegisterMessage(username));
-            sendMessage(new ClientShareStateMessage(username, cube.getPlayerData()));
-            joinPanel.setVisible(false);
-            canvas.addCube(cube);
-            inGame = true;
-        });
-
-
-        mainGamePanel.setComponentZOrder(leavePanel, 0);
-        mainGamePanel.setComponentZOrder(joinPanel, 1);
-        mainGamePanel.setComponentZOrder(canvas, 2);
-
-        gameFrame.addWindowListener(new java.awt.event.WindowAdapter() {
-            @Override
-            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-                gameFrame.dispose();
-                openMainFrame();
-            }
-        });
-
         chatInput.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                switch (e.getKeyCode()) {
-                    case KeyEvent.VK_ESCAPE:
-                        gameFrame.requestFocus();
-                        break;
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    gameFrame.requestFocus();
                 }
             }
         });
@@ -221,27 +225,25 @@ public class Client {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (!inGame) return;
-
                 if (e.getKeyCode() == KeyEvent.VK_SLASH) {
                     chatInput.requestFocus();
                 } else if (!chatInput.isFocusOwner()) {
                     switch (e.getKeyCode()) {
                         case KeyEvent.VK_W:
                             if (cube.getY() + cube.getHeight() == JumpIncremental.FLOOR_HEIGHT) {
-                                cube.setVelocity(cube.getPlayerData().velocityX, -15);
+                                cube.setVelocity((int) cube.getPlayerData().velocityX, -40);
                                 sendMessage(new ClientJumpMessage(username));
                             }
                             break;
                         case KeyEvent.VK_A:
-                            cube.setVelocity(-5, cube.getPlayerData().velocityY);
+                            cube.setVelocity(-30, (int) cube.getPlayerData().velocityY);
                             break;
                         case KeyEvent.VK_D:
-                            cube.setVelocity(5, cube.getPlayerData().velocityY);
+                            cube.setVelocity(30, (int) cube.getPlayerData().velocityY);
                             break;
                     }
                 }
             }
-
             @Override
             public void keyReleased(KeyEvent e) {
                 if (!chatInput.isFocusOwner()) {
@@ -249,14 +251,26 @@ public class Client {
                         case KeyEvent.VK_W:
                         case KeyEvent.VK_A:
                         case KeyEvent.VK_D:
-                            cube.setVelocity(0, cube.getPlayerData().velocityY);
+                            cube.setVelocity(0, (int) cube.getPlayerData().velocityY);
                             break;
                     }
                 }
             }
         });
 
+        gameFrame.setContentPane(rootPanel);
+        gameFrame.setLocationRelativeTo(null);
+        gameFrame.setVisible(true);
+
         SwingUtilities.invokeLater(() -> gameFrame.requestFocus());
+
+        gameFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                gameFrame.dispose();
+                openMainFrame();
+            }
+        });
     }
 
     private void openMainFrame() {
@@ -268,7 +282,7 @@ public class Client {
             }
 
             // JFrame is like the window you're making
-            frame = new JFrame("YourBCAYourBCA");
+            frame = new JFrame("Cubes Game");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setSize(600, 400);
 
@@ -277,7 +291,7 @@ public class Client {
             mainPanel.setBackground(new Color(44, 44, 44));
 
             // JLabel is self-explanatory; you can set its font, border (margins), etc.
-            JLabel welcomeLabel = new JLabel("YourBCAYourBCA!", SwingConstants.CENTER);
+            JLabel welcomeLabel = new JLabel("Cubes Game!", SwingConstants.CENTER);
             welcomeLabel.setFont(new Font("Segoe UI", Font.BOLD, 36));
             welcomeLabel.setBorder(BorderFactory.createEmptyBorder(60, 0, 30, 0));
             mainPanel.add(welcomeLabel, BorderLayout.NORTH);
