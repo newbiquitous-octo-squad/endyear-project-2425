@@ -3,6 +3,7 @@ package client;
 import client.game.Cube;
 import client.game.GameCanvas;
 import global.ConnectionData;
+import global.GameType;
 import global.Sender;
 import global.ServerData;
 import global.protocol.ChatMessage;
@@ -17,6 +18,7 @@ import global.protocol.game.jumpincremental.ClientJumpMessage;
 import global.protocol.game.jumpincremental.ClientShareStateMessage;
 import proxy.Proxy;
 import server.Server;
+import server.game.Game;
 import server.game.jumpincremental.JumpIncremental;
 
 import javax.swing.*;
@@ -38,6 +40,9 @@ public class Client {
 
     JTextArea chatArea;
     GameCanvas canvas;
+    CardLayout cardLayout;
+    JFrame gameFrame;
+    JPanel mainGamePanel, centerPanel;
 
     public static void main(String[] args) {
         new Client().openMainFrame();
@@ -90,7 +95,7 @@ public class Client {
     // In src/main/java/client/Client.java
 
     public void mainGameWindow(String serverName) {
-        JFrame gameFrame = new JFrame("Cubes Game - Server: " + serverName + "; Username: " + username);
+        gameFrame = new JFrame("Cubes Game - Server: " + serverName + "; Username: " + username);
         gameFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         gameFrame.setSize(1000, 600);
 
@@ -98,8 +103,8 @@ public class Client {
         rootPanel.setBackground(new Color(44, 44, 44));
 
         // CardLayout for center area like to swap the visibilities
-        CardLayout cardLayout = new CardLayout();
-        JPanel centerPanel = new JPanel(cardLayout);
+        cardLayout = new CardLayout();
+        centerPanel = new JPanel(cardLayout);
 
         // Waiting panel (with start button and icon)
         JPanel waitingPanel = new JPanel(null);
@@ -127,7 +132,7 @@ public class Client {
         waitingPanel.add(startGameButton);
 
         // Main game panel (canvas + join/leave)
-        JPanel mainGamePanel = new JPanel(null);
+        mainGamePanel = new JPanel(null);
         mainGamePanel.setBackground(new Color(44, 44, 44));
 
         canvas = new GameCanvas();
@@ -178,10 +183,8 @@ public class Client {
 
         // Button actions
         startGameButton.addActionListener(e -> {
-            cardLayout.show(centerPanel, "game");
-            mainGamePanel.setVisible(true);
-            new Thread(canvas).start();
-            gameFrame.requestFocus();
+            server.startGame(GameType.JUMP_INCREMENTAL);
+            beginGame(GameType.JUMP_INCREMENTAL);
         });
 
         joinButton.addActionListener(e -> {
@@ -272,6 +275,7 @@ public class Client {
             }
         });
     }
+
 
     private void openMainFrame() {
         SwingUtilities.invokeLater(() -> {
@@ -412,5 +416,13 @@ public class Client {
             Sender.send(m, connectionData);
         else
             server.handleMessage(m);
+    }
+
+    // theoretically would do whatever based on what the gametype is
+    public void beginGame(GameType gameType) {
+        cardLayout.show(centerPanel, "game");
+        mainGamePanel.setVisible(true);
+        new Thread(canvas).start();
+        gameFrame.requestFocus();
     }
 }

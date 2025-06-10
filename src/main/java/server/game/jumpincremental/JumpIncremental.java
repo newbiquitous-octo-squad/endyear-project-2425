@@ -20,7 +20,7 @@ public class JumpIncremental extends Game {
 
     public static int TICK_DELAY = 16;
     public static int FLOOR_HEIGHT = 400;
-    public static int CANVAS_WIDTH = 500;
+    public static int CANVAS_WIDTH = 700;
 
     public JumpIncremental(ConnectionData connectionData) {
         this.players = new ArrayList<>();

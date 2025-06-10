@@ -7,6 +7,7 @@ import global.protocol.Message;
 import global.protocol.PingMessage;
 import global.protocol.ServerStartupInfoMessage;
 import global.ServerData;
+import global.protocol.game.GameStartedMessage;
 import proxy.Proxy;
 import server.game.Game;
 import server.game.jumpincremental.JumpIncremental;
@@ -42,7 +43,6 @@ public class Server implements Runnable {
 
     @Override
     public void run() {
-        selectedGame = new JumpIncremental(proxyConnectionData);
         listener = new ServerListener(proxyConnectionData, this);
         new Thread(listener).start();
         Sender.send(new ServerStartupInfoMessage(serverData), proxyConnectionData);
@@ -64,15 +64,17 @@ public class Server implements Runnable {
         return selectedGame;
     }
 
-    public void setSelectedGame(GameType game) {
+    public void startGame(GameType game) {
         selectedGame = switch (game) {
-            case JUMP_INCREMENTAL:
-                yield new JumpIncremental(proxyConnectionData);
+            case JUMP_INCREMENTAL -> new JumpIncremental(proxyConnectionData);
         };
+        Sender.send(new GameStartedMessage(game), proxyConnectionData);
+        new Thread(selectedGame).start();
     }
 
     public void stop() {
         running = false;
+        getSelectedGame().stop();
     }
 
     public ServerData getServerData() {

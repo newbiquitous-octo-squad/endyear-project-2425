@@ -4,6 +4,7 @@ import client.game.Cube;
 import global.AbstractListener;
 import global.ConnectionData;
 import global.protocol.*;
+import global.protocol.game.GameStartedMessage;
 import global.protocol.game.jumpincremental.PlayerData;
 import global.protocol.game.jumpincremental.UpdateStateMessage;
 
@@ -43,6 +44,10 @@ public class ClientListener extends AbstractListener {
 
             case ClientJoinMessage clientJoinMessage -> {
                 if (!(Objects.equals(clientJoinMessage.username, client.username))) client.chatArea.append(clientJoinMessage.toString());
+            }
+
+            case GameStartedMessage gameStartedMessage -> {
+                client.beginGame(gameStartedMessage.gameType);
             }
 
             case UpdateStateMessage updateStateMessage -> handleJumpIncrementalStateUpdate(updateStateMessage);
