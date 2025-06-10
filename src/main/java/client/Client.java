@@ -98,6 +98,7 @@ public class Client {
         gameFrame = new JFrame("Cubes Game - Server: " + serverName + "; Username: " + username);
         gameFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         gameFrame.setSize(1000, 600);
+        gameFrame.setResizable(false);
 
         JPanel rootPanel = new JPanel(new BorderLayout());
         rootPanel.setBackground(new Color(44, 44, 44));
@@ -113,16 +114,16 @@ public class Client {
         JLabel waitingLabel = new JLabel("Waiting for host to start...", SwingConstants.CENTER);
         waitingLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
         waitingLabel.setForeground(Color.WHITE);
-        waitingLabel.setBounds(200, 100, 400, 40);
+        waitingLabel.setBounds(150, 100, 400, 40);
 
         ImageIcon icon = new ImageIcon("src/main/java/images/jumpThumbnail.png");
-        Image scaledImage = icon.getImage().getScaledInstance(80, 60, Image.SCALE_SMOOTH);
+        Image scaledImage = icon.getImage().getScaledInstance(160, 120, Image.SCALE_SMOOTH);
         JLabel iconLabel = new JLabel(new ImageIcon(scaledImage));
-        iconLabel.setBounds(320, 180, 80, 60);
+        iconLabel.setBounds(260, 180, 160, 120);
 
         JButton startGameButton = new JButton("Start Game");
         startGameButton.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        startGameButton.setBounds(250, 270, 220, 60);
+        startGameButton.setBounds(230, 320, 220, 60);
 
         boolean isHost = server != null;
         startGameButton.setEnabled(isHost);
