@@ -47,8 +47,8 @@ public class Client {
     public void startListen(String host, String serverName) {
         int serverPort = -1;
         try {
-            ConnectionData connectionData = new ConnectionData(new Socket(Proxy.HOST, Proxy.SHARER_PORT));
-            Sender.send(new GetServerRequestMessage(serverName), connectionData);
+            connectionData = new ConnectionData(new Socket(Proxy.HOST, Proxy.SHARER_PORT));
+            sendMessage(new GetServerRequestMessage(serverName));
             Message m = (Message) connectionData.getInput().readObject();
             switch (m) {
                 case ServerFoundMessage found:
@@ -71,7 +71,7 @@ public class Client {
             new Thread(
                     new ClientListener(connectionData, this)
             ).start();
-            Sender.send(new ClientJoinMessage(username), connectionData);
+            sendMessage(new ClientJoinMessage(username));
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Failed to connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -148,7 +148,7 @@ public class Client {
                     JOptionPane.showMessageDialog(gameFrame, "Connection not established!", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                Sender.send(new ChatMessage(message, username), connectionData);
+                sendMessage(new ChatMessage(message, username));
             }
         });
 
@@ -158,8 +158,8 @@ public class Client {
         leaveButton.setPreferredSize(new Dimension(100, 30));
         leaveButton.addActionListener(e -> {
             // TODO: Handle changing server ownership when the host leaves, for now doesn't kill server
-            Sender.send(new ClientLeaveMessage(username), connectionData);
-            Sender.send(new GameUnregisterMessage(username), connectionData);
+            sendMessage(new ClientLeaveMessage(username));
+            sendMessage(new GameUnregisterMessage(username));
             gameFrame.dispose();
             openMainFrame();
         });
@@ -186,8 +186,8 @@ public class Client {
         mainGamePanel.add(joinPanel);
 
         joinButton.addActionListener(e -> {
-            Sender.send(new GameRegisterMessage(username), connectionData);
-            Sender.send(new ClientShareStateMessage(username, cube.getPlayerData()), connectionData);
+            sendMessage(new GameRegisterMessage(username));
+            sendMessage(new ClientShareStateMessage(username, cube.getPlayerData()));
             joinPanel.setVisible(false);
             canvas.addCube(cube);
             inGame = true;
@@ -229,7 +229,7 @@ public class Client {
                         case KeyEvent.VK_W:
                             if (cube.getY() + cube.getHeight() == JumpIncremental.FLOOR_HEIGHT) {
                                 cube.setVelocity((int) cube.getPlayerData().velocityX, -40);
-                                Sender.send(new ClientJumpMessage(username), connectionData);
+                                sendMessage(new ClientJumpMessage(username));
                             }
                             break;
                         case KeyEvent.VK_A:
@@ -384,12 +384,16 @@ public class Client {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                Sender.send(new ClientShareStateMessage(username, cube.getPlayerData()), connectionData);
+                sendMessage(new ClientShareStateMessage(username, cube.getPlayerData()));
             }
         }, 63, JumpIncremental.TICK_DELAY);
     }
 
     public boolean isInGame() {
         return inGame;
+    }
+
+    public synchronized void sendMessage(Message m) {
+        Sender.send(m, connectionData);
     }
 }

@@ -7,7 +7,6 @@ import global.protocol.ClientJoinMessage;
 import global.protocol.ClientLeaveMessage;
 import global.protocol.Message;
 import global.protocol.game.GameMessage;
-import server.game.Game;
 
 public class ServerListener extends AbstractListener {
     private final Server server;
@@ -23,6 +22,7 @@ public class ServerListener extends AbstractListener {
             case ChatMessage chatMessage -> {
                 System.out.println("Forwarding message from " + chatMessage.sender);
                 send(chatMessage, connectionData);
+                server.getServerData().addChatMessage(chatMessage.sender + ": " + chatMessage.message);
             }
             case ClientJoinMessage clientJoinMessage -> {
                 System.out.println(clientJoinMessage.username + " has joined the server.");

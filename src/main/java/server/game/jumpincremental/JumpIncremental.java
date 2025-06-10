@@ -10,11 +10,11 @@ import global.protocol.game.jumpincremental.ClientShareStateMessage;
 import global.protocol.game.jumpincremental.PlayerData;
 import global.protocol.game.jumpincremental.UpdateStateMessage;
 import server.game.Game;
+import server.game.GameData;
 
 import java.util.*;
 
 public class JumpIncremental extends Game {
-    private ConnectionData connectionData;
     private List<PlayerData> players;
     private Timer timer = new Timer();
 
@@ -78,5 +78,10 @@ public class JumpIncremental extends Game {
     @Override
     public void stop() {
         this.running = false;
+    }
+
+    @Override
+    public JumpIncrementalData getGameData() {
+        return new JumpIncrementalData(players);
     }
 }
