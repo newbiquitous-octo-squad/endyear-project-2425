@@ -24,6 +24,7 @@ public class Server implements Runnable {
     private Game selectedGame;
     private volatile boolean running = true;
     private ConnectionData proxyConnectionData;
+    private ServerListener listener;
 
     public Server(ServerData serverData) {
         this.serverData = serverData;
@@ -42,7 +43,7 @@ public class Server implements Runnable {
     @Override
     public void run() {
         selectedGame = new JumpIncremental(proxyConnectionData);
-        ServerListener listener = new ServerListener(proxyConnectionData, this);
+        listener = new ServerListener(proxyConnectionData, this);
         new Thread(listener).start();
         Sender.send(new ServerStartupInfoMessage(serverData), proxyConnectionData);
         System.out.println(this.serverData.name);
@@ -76,5 +77,9 @@ public class Server implements Runnable {
 
     public ServerData getServerData() {
         return serverData;
+    }
+
+    public void handleMessage(Message message) {
+        listener.processMessage(message);
     }
 }

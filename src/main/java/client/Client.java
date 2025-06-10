@@ -71,7 +71,7 @@ public class Client {
             new Thread(
                     new ClientListener(connectionData, this)
             ).start();
-            sendMessage(new ClientJoinMessage(username));
+            Sender.send(new ClientJoinMessage(username), connectionData);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Failed to connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -208,7 +208,7 @@ public class Client {
                     JOptionPane.showMessageDialog(gameFrame, "Connection not established!", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                sendMessage(new ChatMessage(message, username));
+                Sender.send(new ChatMessage(message, username), connectionData);
             }
         });
 
@@ -408,6 +408,9 @@ public class Client {
     }
 
     public synchronized void sendMessage(Message m) {
-        Sender.send(m, connectionData);
+        if (server == null)
+            Sender.send(m, connectionData);
+        else
+            server.handleMessage(m);
     }
 }
