@@ -228,15 +228,15 @@ public class Client {
                     switch (e.getKeyCode()) {
                         case KeyEvent.VK_W:
                             if (cube.getY() + cube.getHeight() == JumpIncremental.FLOOR_HEIGHT) {
-                                cube.setVelocity(cube.getPlayerData().velocityX, -15);
+                                cube.setVelocity((int) cube.getPlayerData().velocityX, -40);
                                 sendMessage(new ClientJumpMessage(username));
                             }
                             break;
                         case KeyEvent.VK_A:
-                            cube.setVelocity(-5, cube.getPlayerData().velocityY);
+                            cube.setVelocity(-30, (int) cube.getPlayerData().velocityY);
                             break;
                         case KeyEvent.VK_D:
-                            cube.setVelocity(5, cube.getPlayerData().velocityY);
+                            cube.setVelocity(30, (int) cube.getPlayerData().velocityY);
                             break;
                     }
                 }
@@ -249,7 +249,7 @@ public class Client {
                         case KeyEvent.VK_W:
                         case KeyEvent.VK_A:
                         case KeyEvent.VK_D:
-                            cube.setVelocity(0, cube.getPlayerData().velocityY);
+                            cube.setVelocity(0, (int) cube.getPlayerData().velocityY);
                             break;
                     }
                 }
