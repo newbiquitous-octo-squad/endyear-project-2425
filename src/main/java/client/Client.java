@@ -15,7 +15,6 @@ import global.protocol.central.ServerFoundMessage;
 import global.protocol.game.GameRegisterMessage;
 import global.protocol.game.GameUnregisterMessage;
 import global.protocol.game.jumpincremental.ClientKeyMessage;
-import global.protocol.game.jumpincremental.ClientShareStateMessage;
 import proxy.Proxy;
 import server.Server;
 import server.game.jumpincremental.JumpIncremental;
@@ -34,6 +33,7 @@ public class Client {
     private Timer timer = new Timer();
     private JFrame frame;
     private int keysDown;
+    public boolean gameActive = false;
 
     private ConnectionData connectionData;
 
@@ -63,7 +63,7 @@ public class Client {
             }
         } catch (Exception ex) {
             System.err.println("Error while connecting to server");
-            ex.printStackTrace();
+            ex.printStackTrace(System.err);
         }
 
         if (serverPort == -1) {
@@ -341,7 +341,7 @@ public class Client {
                         }
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(frame, "Error while starting the server.", "Error", JOptionPane.ERROR_MESSAGE);
-                        ex.printStackTrace();
+                        ex.printStackTrace(System.err);
                     }
                 }
             });
@@ -408,6 +408,10 @@ public class Client {
 
     // theoretically would do whatever based on what the gametype is
     public void beginGame(GameType gameType) {
+        if(mainGamePanel == null) return; //for the VERY common case of recieving a message before game panel is ready
+
+        gameActive = true;
+
         cardLayout.show(centerPanel, "game");
         mainGamePanel.setVisible(true);
         new Thread(canvas).start();

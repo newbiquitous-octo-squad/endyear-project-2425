@@ -37,7 +37,7 @@ public class Proxy {
 
         } catch (IOException e) {
             System.err.println("Uh oh! Proxy died!");
-            e.printStackTrace();
+            e.printStackTrace(System.err);
         }
     }
 

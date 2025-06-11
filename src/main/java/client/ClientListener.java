@@ -3,6 +3,7 @@ package client;
 import client.game.Cube;
 import global.AbstractListener;
 import global.ConnectionData;
+import global.GameType;
 import global.protocol.*;
 import global.protocol.game.GameStartedMessage;
 import global.protocol.game.jumpincremental.PlayerData;
@@ -46,11 +47,15 @@ public class ClientListener extends AbstractListener {
                 if (!(Objects.equals(clientJoinMessage.username, client.username))) client.chatArea.append(clientJoinMessage.toString());
             }
 
-            case GameStartedMessage gameStartedMessage -> {
-                client.beginGame(gameStartedMessage.gameType);
-            }
+            case GameStartedMessage gameStartedMessage -> client.beginGame(gameStartedMessage.gameType);
 
-            case UpdateStateMessage updateStateMessage -> handleJumpIncrementalStateUpdate(updateStateMessage);
+
+            case UpdateStateMessage updateStateMessage -> {
+                if(!client.gameActive)
+                    client.beginGame(GameType.JUMP_INCREMENTAL);
+                    //this should be taken from updateStateMessage but for some reason our handling is structured like this
+                handleJumpIncrementalStateUpdate(updateStateMessage);
+            }
 
 
             default -> System.out.println("Received unknown message - Britain BoiletBaster " + message.getClass());
@@ -65,9 +70,7 @@ public class ClientListener extends AbstractListener {
         }
         for (PlayerData playerData : stateMessage.data) {
             client.canvas.cubes.stream().filter(cube -> cube.getUsername().equals(playerData.name)).findFirst().ifPresentOrElse(
-                    cube -> {
-                        cube.setFromPlayer(playerData);
-                    }, () -> {
+                    cube -> cube.setFromPlayer(playerData), () -> {
                         System.out.println("NEW CUBE: " + playerData.name);
                         Cube c = new Cube(playerData);
                         client.canvas.addCube(c);
