@@ -14,11 +14,10 @@ import global.protocol.central.GetServerRequestMessage;
 import global.protocol.central.ServerFoundMessage;
 import global.protocol.game.GameRegisterMessage;
 import global.protocol.game.GameUnregisterMessage;
-import global.protocol.game.jumpincremental.ClientJumpMessage;
+import global.protocol.game.jumpincremental.ClientKeyMessage;
 import global.protocol.game.jumpincremental.ClientShareStateMessage;
 import proxy.Proxy;
 import server.Server;
-import server.game.Game;
 import server.game.jumpincremental.JumpIncremental;
 
 import javax.swing.*;
@@ -34,7 +33,7 @@ public class Client {
     private boolean inGame = false;
     private Timer timer = new Timer();
     private JFrame frame;
-    private Cube cube;
+    private int keysDown;
 
     private ConnectionData connectionData;
 
@@ -137,7 +136,6 @@ public class Client {
         mainGamePanel.setBackground(new Color(44, 44, 44));
 
         canvas = new GameCanvas();
-        cube = new Cube(username);
         canvas.setBounds(0, 0, 700, 600);
         mainGamePanel.add(canvas);
 
@@ -190,9 +188,7 @@ public class Client {
 
         joinButton.addActionListener(e -> {
             sendMessage(new GameRegisterMessage(username));
-            sendMessage(new ClientShareStateMessage(username, cube.getPlayerData()));
             joinButton.setVisible(false);
-            canvas.addCube(cube);
             inGame = true;
         });
 
@@ -232,32 +228,23 @@ public class Client {
                 if (e.getKeyCode() == KeyEvent.VK_SLASH) {
                     chatInput.requestFocus();
                 } else if (!chatInput.isFocusOwner()) {
-                    switch (e.getKeyCode()) {
-                        case KeyEvent.VK_W:
-                            if (cube.getY() + cube.getHeight() == JumpIncremental.FLOOR_HEIGHT) {
-                                cube.setVelocity((int) cube.getPlayerData().velocityX, -40);
-                                sendMessage(new ClientJumpMessage(username));
-                            }
-                            break;
-                        case KeyEvent.VK_A:
-                            cube.setVelocity(-30, (int) cube.getPlayerData().velocityY);
-                            break;
-                        case KeyEvent.VK_D:
-                            cube.setVelocity(30, (int) cube.getPlayerData().velocityY);
-                            break;
-                    }
+                    keysDown |= switch (e.getKeyCode()) {
+                        case KeyEvent.VK_W -> ClientKeyMessage.KEY_W;
+                        case KeyEvent.VK_A -> ClientKeyMessage.KEY_A;
+                        case KeyEvent.VK_D -> ClientKeyMessage.KEY_D;
+                        default -> 0;
+                    };
                 }
             }
             @Override
             public void keyReleased(KeyEvent e) {
                 if (!chatInput.isFocusOwner()) {
-                    switch (e.getKeyCode()) {
-                        case KeyEvent.VK_W:
-                        case KeyEvent.VK_A:
-                        case KeyEvent.VK_D:
-                            cube.setVelocity(0, (int) cube.getPlayerData().velocityY);
-                            break;
-                    }
+                    keysDown &= ~switch (e.getKeyCode()) {
+                        case KeyEvent.VK_W -> ClientKeyMessage.KEY_W;
+                        case KeyEvent.VK_A -> ClientKeyMessage.KEY_A;
+                        case KeyEvent.VK_D -> ClientKeyMessage.KEY_D;
+                        default -> 0;
+                    };
                 }
             }
         });
@@ -403,7 +390,7 @@ public class Client {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                sendMessage(new ClientShareStateMessage(username, cube.getPlayerData()));
+                sendMessage(new ClientKeyMessage(username, keysDown));
             }
         }, 63, JumpIncremental.TICK_DELAY);
     }

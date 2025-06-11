@@ -50,4 +50,28 @@ public class PlayerData implements Serializable {
             x = 0;
         }
     }
+
+    public PlayerData copy() {
+        PlayerData out = new PlayerData(this.name);
+        out.x = this.x;
+        out.y = this.y;
+        out.velocityX = this.velocityX;
+        out.velocityY = this.velocityY;
+        out.score = this.score;
+        out.color = this.color;
+        return out;
+    }
+
+    @Override
+    public String toString() {
+        return "PlayerData{" +
+                "name='" + name + '\'' +
+                ", x=" + x +
+                ", y=" + y +
+                ", score=" + score +
+                ", velocityX=" + velocityX +
+                ", velocityY=" + velocityY +
+                ", color=" + color +
+                '}';
+    }
 }

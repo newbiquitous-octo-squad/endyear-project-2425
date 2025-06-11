@@ -8,7 +8,9 @@ import global.protocol.ChatMessage;
 import global.protocol.ClientJoinMessage;
 import global.protocol.Message;
 import global.protocol.ServerStartupInfoMessage;
+import global.protocol.game.jumpincremental.UpdateStateMessage;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class ProxyServerListener extends AbstractProxyListener {
@@ -39,6 +41,10 @@ public class ProxyServerListener extends AbstractProxyListener {
                 System.out.println(clientList.size());
                 System.out.println("Broadcasting message from " + chatMessage.sender);
                 broadcast(chatMessage);
+            }
+            case UpdateStateMessage updateStateMessage -> {
+                System.out.println(Arrays.toString(updateStateMessage.data));
+                broadcast(message);
             }
             default -> broadcast(message);
         }

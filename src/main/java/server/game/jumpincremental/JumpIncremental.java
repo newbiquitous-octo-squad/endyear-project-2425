@@ -5,12 +5,8 @@ import global.Sender;
 import global.protocol.game.GameMessage;
 import global.protocol.game.GameRegisterMessage;
 import global.protocol.game.GameUnregisterMessage;
-import global.protocol.game.jumpincremental.ClientJumpMessage;
-import global.protocol.game.jumpincremental.ClientShareStateMessage;
-import global.protocol.game.jumpincremental.PlayerData;
-import global.protocol.game.jumpincremental.UpdateStateMessage;
+import global.protocol.game.jumpincremental.*;
 import server.game.Game;
-import server.game.GameData;
 
 import java.util.*;
 
@@ -39,6 +35,7 @@ public class JumpIncremental extends Game {
             for (PlayerData playerData : players) {
                 playerData.update();
             }
+            System.out.println(players);
             try {
                 Thread.sleep(16);
             } catch (InterruptedException e) {
@@ -60,17 +57,26 @@ public class JumpIncremental extends Game {
                 System.out.println("The new player list is: " + players.toString());
             }
             case GameUnregisterMessage unregisterMessage -> players.stream().filter(p -> p.name.equals(unregisterMessage.username)).findFirst().ifPresent(p -> players.remove(p));
-            case ClientShareStateMessage stateMessage -> this.setPlayerData(stateMessage);
-            case ClientJumpMessage jumpMessage -> players.stream().filter(playerData -> playerData.name.equals(jumpMessage.username)).findFirst().ifPresent(player -> player.score++);
+            case ClientKeyMessage keyMessage -> handleKeyMessage(keyMessage);
             default ->
                     System.out.println("Saw a message that was called " + m.getClass().getSimpleName() + ", idk what that means tho. Taitan MoiletDisaster");
         }
     }
 
-    public void setPlayerData(ClientShareStateMessage stateMessage) {
+
+    public void handleKeyMessage(ClientKeyMessage keyMessage) {
         for (int i = 0; i < players.size(); i++) {
-            if (players.get(i).name.equals(stateMessage.name)) {
-                players.set(i, stateMessage.playerData);
+            if (players.get(i).name.equals(keyMessage.username)) {
+                PlayerData player = players.get(i);
+                if (keyMessage.hasKey('W')) {
+                    if (player.y + player.size == FLOOR_HEIGHT) {
+                        player.velocityY = -40;
+                        player.score++;
+                    }
+                }
+                player.velocityX = keyMessage.hasKey('A') ? -30 : (keyMessage.hasKey('D') ? 30 : 0);
+
+                players.set(i, player.copy());
             }
         }
     }
