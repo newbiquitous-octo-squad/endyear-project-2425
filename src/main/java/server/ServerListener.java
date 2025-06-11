@@ -7,6 +7,9 @@ import global.protocol.ClientJoinMessage;
 import global.protocol.ClientLeaveMessage;
 import global.protocol.Message;
 import global.protocol.game.GameMessage;
+import global.protocol.central.transfer.GameDataRequestMessage;
+import global.protocol.central.transfer.ServerDataRequestMessage;
+import global.protocol.central.transfer.ShutdownPermittedMessage;
 
 public class ServerListener extends AbstractListener {
     private final Server server;
@@ -35,6 +38,9 @@ public class ServerListener extends AbstractListener {
                 server.getUsernames().remove(clientLeaveMessage.username);
             }
             case GameMessage gameMessage -> server.getSelectedGame().processMessage(gameMessage);
+            case ServerDataRequestMessage ignored -> server.sendServerData();
+            case GameDataRequestMessage ignored -> server.sendGameData();
+            case ShutdownPermittedMessage ignored -> server.shutdown();
             default -> System.out.printf("'got a %s, idk what it is tho...' - titan toiletmaster\n", message.getClass());
         }
     }

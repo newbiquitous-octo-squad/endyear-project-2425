@@ -8,6 +8,9 @@ import global.protocol.PingMessage;
 import global.protocol.ServerStartupInfoMessage;
 import global.ServerData;
 import global.protocol.game.GameStartedMessage;
+import global.protocol.central.transfer.GameDataMessage;
+import global.protocol.central.transfer.InitiateShutdownMessage;
+import global.protocol.central.transfer.ServerDataMessage;
 import proxy.Proxy;
 import server.game.Game;
 import server.game.jumpincremental.JumpIncremental;
@@ -73,6 +76,20 @@ public class Server implements Runnable {
     }
 
     public void stop() {
+        Sender.send(new InitiateShutdownMessage(), proxyConnectionData);
+
+//        shutdown();
+    }
+
+    public void sendServerData() {
+        Sender.send(new ServerDataMessage(serverData), proxyConnectionData);
+    }
+
+    public void sendGameData() {
+        Sender.send(new GameDataMessage(selectedGame == null ? null : selectedGame.getGameData()), proxyConnectionData);
+    }
+
+    public void shutdown() {
         running = false;
         getSelectedGame().stop();
     }

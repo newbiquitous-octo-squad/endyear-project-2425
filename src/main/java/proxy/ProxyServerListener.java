@@ -2,12 +2,11 @@ package proxy;
 
 import global.ClientConnectionData;
 import global.ConnectionData;
-import global.Sender;
 import global.ServerData;
 import global.protocol.ChatMessage;
-import global.protocol.ClientJoinMessage;
 import global.protocol.Message;
 import global.protocol.ServerStartupInfoMessage;
+import global.protocol.central.transfer.*;
 import global.protocol.game.jumpincremental.UpdateStateMessage;
 
 import java.util.Arrays;
@@ -15,6 +14,8 @@ import java.util.List;
 
 public class ProxyServerListener extends AbstractProxyListener {
     ServerData serverData;
+    ServerDataMessage serverDataMessage;
+    GameDataMessage gameDataMessage;
     public ProxyServerListener(ConnectionData connectionData, List<ClientConnectionData> clientList) {
         super(connectionData, clientList);
         this.serverData = new ServerData();
@@ -46,8 +47,28 @@ public class ProxyServerListener extends AbstractProxyListener {
                 System.out.println(Arrays.toString(updateStateMessage.data));
                 broadcast(message);
             }
+            case InitiateShutdownMessage ignored -> {
+                // TODO: Find a new candidate
+                send(new ServerDataRequestMessage(), connectionData);
+                send(new GameDataRequestMessage(), connectionData);
+            }
+            case ServerDataMessage sdm -> {
+                serverDataMessage = sdm;
+                sendShutdownMessage();
+            }
+            case GameDataMessage gdm -> {
+                gameDataMessage = gdm;
+                sendShutdownMessage();
+            }
             default -> broadcast(message);
         }
+    }
+
+    public void sendShutdownMessage() {
+        if (serverDataMessage == null || gameDataMessage == null) {
+            return;
+        }
+        send(new ShutdownPermittedMessage(), connectionData);
     }
 
     @Override
