@@ -4,6 +4,8 @@ import global.protocol.game.GameMessage;
 
 // only in 1 int since i don't want to store like 1000 booleans
 public class ClientKeyMessage extends GameMessage {
+    private static final long serialVersionUID = 1L;
+
     public static int KEY_W = 0b1,
             KEY_A = 0b10,
             KEY_D = 0b100;
