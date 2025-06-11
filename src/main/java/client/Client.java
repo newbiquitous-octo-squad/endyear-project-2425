@@ -22,6 +22,7 @@ import server.game.jumpincremental.JumpIncremental;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -367,7 +368,7 @@ public class Client {
                             frame.dispose();
                             mainGameWindow(serverName);
                         } else {
-                            // Something
+                            System.out.println("Line 371 in Client reached");
                         }
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(frame, "Error while connecting to the server.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -416,5 +417,28 @@ public class Client {
         mainGamePanel.setVisible(true);
         new Thread(canvas).start();
         gameFrame.requestFocus();
+    }
+
+    /**
+     * this method is more you get kicked from the server
+     */
+    public void disconnect(String reason) {
+
+        JOptionPane.showMessageDialog(frame, reason, "Disconnected", JOptionPane.ERROR_MESSAGE);
+
+        frame.dispose();
+        frame = null;
+
+        gameFrame.dispose();
+        gameFrame = null;
+
+        try {
+            connectionData.getSocket().close();
+        } catch (IOException ex) {
+            System.err.println("Problem closing socket: " + ex.getMessage());
+            ex.printStackTrace(System.err);
+        }
+
+        System.exit(0); //too tired to try and fix this
     }
 }

@@ -5,11 +5,13 @@ import global.AbstractListener;
 import global.ConnectionData;
 import global.GameType;
 import global.protocol.*;
+import global.protocol.central.ConnectionDeclinedMessage;
 import global.protocol.game.GameStartedMessage;
 import global.protocol.game.jumpincremental.PlayerData;
 import global.protocol.game.jumpincremental.UpdateStateMessage;
 
 import javax.swing.*;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +33,12 @@ public class ClientListener extends AbstractListener {
             case PingMessage ignored -> {
                 System.out.println("Received Ping message");
                 send(new PongMessage(), connectionData);
+            }
+
+            case ConnectionDeclinedMessage declinedMessage -> {
+                System.out.println("server kicked");
+                client.disconnect(declinedMessage.reason);
+                close();
             }
 
             case ChatMessage chatMessage -> {

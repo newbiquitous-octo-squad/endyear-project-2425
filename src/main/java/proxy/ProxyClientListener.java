@@ -38,6 +38,7 @@ public class ProxyClientListener extends AbstractProxyListener {
         switch (message) {
             case ClientJoinMessage clientJoinMessage -> {
                 if (clientList.stream().anyMatch(data -> clientJoinMessage.username.equals(data.getName()))) {
+                    System.out.println("kicking client for dupe user");
                     send(new ConnectionDeclinedMessage("Your username was already taken! Find a new one."), connectionData);
                     this.close();
                     return;
