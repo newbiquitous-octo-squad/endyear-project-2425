@@ -5,6 +5,8 @@ import global.AbstractListener;
 import global.ConnectionData;
 import global.GameType;
 import global.protocol.*;
+import global.protocol.central.transfer.HostDataMessage;
+import global.protocol.central.transfer.NewHostMessage;
 import global.protocol.game.GameStartedMessage;
 import global.protocol.game.jumpincremental.PlayerData;
 import global.protocol.game.jumpincremental.UpdateStateMessage;
@@ -24,6 +26,7 @@ public class ClientListener extends AbstractListener {
         super(connectionData);
         this.client = client;
     }
+
 
     @Override
     public void processMessage(Message message) {
@@ -57,6 +60,9 @@ public class ClientListener extends AbstractListener {
                 handleJumpIncrementalStateUpdate(updateStateMessage);
             }
 
+            case NewHostMessage newHostMessage -> client.chatArea.append(newHostMessage.toString());
+
+            case HostDataMessage hostDataMessage -> client.becomeHost(hostDataMessage.serverData);
 
             default -> System.out.println("Received unknown message - Britain BoiletBaster " + message.getClass());
         }

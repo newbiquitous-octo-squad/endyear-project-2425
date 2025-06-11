@@ -7,18 +7,18 @@ import global.protocol.ChatMessage;
 import global.protocol.Message;
 import global.protocol.ServerStartupInfoMessage;
 import global.protocol.central.transfer.*;
-import global.protocol.game.jumpincremental.UpdateStateMessage;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 public class ProxyServerListener extends AbstractProxyListener {
-    ServerData serverData;
-    ServerDataMessage serverDataMessage;
-    GameDataMessage gameDataMessage;
-    public ProxyServerListener(ConnectionData connectionData, List<ClientConnectionData> clientList) {
+    private ServerData serverData;
+    private ProxyInstance instance;
+    public ProxyServerListener(ConnectionData connectionData, List<ClientConnectionData> clientList, ProxyInstance instance) {
         super(connectionData, clientList);
         this.serverData = new ServerData();
+        this.instance = instance;
     }
 
     public ServerData getServerData() {
@@ -26,7 +26,6 @@ public class ProxyServerListener extends AbstractProxyListener {
     }
 
     public void broadcast(Message message) {
-//        System.out.println("Broadcasti(tan toilet master is always watchi)ng: " + message.getClass().getSimpleName());
         for (ConnectionData client : clientList) {
             send(message, client);
         }
@@ -43,36 +42,27 @@ public class ProxyServerListener extends AbstractProxyListener {
                 System.out.println("Broadcasting message from " + chatMessage.sender);
                 broadcast(chatMessage);
             }
-            case UpdateStateMessage updateStateMessage -> {
-                System.out.println(Arrays.toString(updateStateMessage.data));
-                broadcast(message);
-            }
-            case InitiateShutdownMessage ignored -> {
-                // TODO: Find a new candidate
-                send(new ServerDataRequestMessage(), connectionData);
-                send(new GameDataRequestMessage(), connectionData);
-            }
-            case ServerDataMessage sdm -> {
-                serverDataMessage = sdm;
-                sendShutdownMessage();
-            }
-            case GameDataMessage gdm -> {
-                gameDataMessage = gdm;
-                sendShutdownMessage();
+            case ServerShutdownMessage shutdownMessage -> {
+                System.out.println("Initiating transfer process.");
+                if (clientList.size() == 1) {
+                    System.out.println("Nevermind everyone's gone");
+                    instance.stop();
+                } else {
+                    ClientConnectionData client = clientList.get(1); // we get the 1st element rather than the 0th element since it's most likely that element #0 is our preexisting server
+                    System.out.println("Our new host will be " + client.getName());
+                    send(new HostDataMessage(shutdownMessage.serverData), client);
+                    broadcast(new NewHostMessage(client.getName()));
+                    instance.openToNewHost();
+                    this.close();
+                }
             }
             default -> broadcast(message);
         }
     }
 
-    public void sendShutdownMessage() {
-        if (serverDataMessage == null || gameDataMessage == null) {
-            return;
-        }
-        send(new ShutdownPermittedMessage(), connectionData);
-    }
-
     @Override
     public void onDisconnect() {
-        // TODO: TRANSFER SERVER
+        // TODO: HANDLE SUDDEN DISCONNECT
+        instance.stop();
     }
 }

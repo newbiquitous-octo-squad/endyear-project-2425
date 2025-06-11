@@ -18,6 +18,7 @@ public class ProxyInstance implements Runnable {
     private ExecutorService pool = Executors.newFixedThreadPool(1000);
     private int port;
     private ProxyServerListener listener;
+    private boolean running;
 
     public ProxyInstance(ConnectionData server, int port) {
         this.server = server;
@@ -31,10 +32,10 @@ public class ProxyInstance implements Runnable {
 
     @Override
     public void run() {
-        listener = new ProxyServerListener(server, clientList);
-        new Thread(listener).start();
+        startServerListener(server);
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            while (true) {
+            running = true;
+            while (running) {
                 ClientConnectionData data = new ClientConnectionData(serverSocket.accept());
                 clientList.add(data);
                 pool.execute(new ProxyClientListener(data, server, clientList));
@@ -46,5 +47,21 @@ public class ProxyInstance implements Runnable {
 
     public int getPort() {
         return port;
+    }
+
+    public void stop() {
+        this.running = false;
+    }
+
+    public void openToNewHost() {
+        listener = null;
+    }
+    public boolean isOpenToNewHost() {
+        return listener == null;
+    }
+
+    public void startServerListener(ConnectionData connectionData) {
+        listener = new ProxyServerListener(connectionData, clientList, this);
+        new Thread(listener).start();
     }
 }

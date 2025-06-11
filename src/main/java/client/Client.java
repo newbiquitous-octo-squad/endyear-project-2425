@@ -33,6 +33,7 @@ public class Client {
     private Timer timer = new Timer();
     private JFrame frame;
     private int keysDown;
+    private ClientListener listener;
     public boolean gameActive = false;
 
     private ConnectionData connectionData;
@@ -72,9 +73,8 @@ public class Client {
 
         try {
             connectionData = new ConnectionData(new Socket(host, serverPort));
-            new Thread(
-                    new ClientListener(connectionData, this)
-            ).start();
+            listener = new ClientListener(connectionData, this);
+            new Thread(listener).start();
             Sender.send(new ClientJoinMessage(username), connectionData);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Failed to connect to server.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -82,16 +82,14 @@ public class Client {
     }
 
     public void startServer(String sName) {
-        server = new Server(new ServerData(sName));
+        server = new Server(new ServerData(sName), true);
         new Thread(server).start();
     }
 
     public void stopServer() {
         server.stop();
+        this.server = null;
     }
-
-    // Like the game stuff (the actual server game windows)
-    // In src/main/java/client/Client.java
 
     public void mainGameWindow(String serverName) {
         gameFrame = new JFrame("Cubes Game - Server: " + serverName + "; Username: " + username);
@@ -193,9 +191,11 @@ public class Client {
         });
 
         leaveButton.addActionListener(e -> {
-            sendMessage(new ClientLeaveMessage(username));
-            sendMessage(new GameUnregisterMessage(username));
+            Sender.send(new ClientLeaveMessage(username), connectionData);
+            Sender.send(new GameUnregisterMessage(username), connectionData);
             gameFrame.dispose();
+            listener.close();
+            if (server != null) stopServer();
             openMainFrame();
         });
 
@@ -291,9 +291,6 @@ public class Client {
             // FlowLayout is a layout manager that tries its best to arrange the components based on the params
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 60, 40));
             buttonPanel.setOpaque(false);
-
-            // TODO: THESE BUTTONS SHOULD NOT BE USABLE WITHOUT A USERNAME PROMPT
-            // ALSO TODO: MICHAEL EXPLAIN HOW THIS GUI THING WORKS SINCE I THINK A LOT IS GONNA BE HANGING ON IT
 
             // Button: It's a button
             JButton hostButton = new JButton("Host");
@@ -416,5 +413,11 @@ public class Client {
         mainGamePanel.setVisible(true);
         new Thread(canvas).start();
         gameFrame.requestFocus();
+    }
+
+    public void becomeHost(ServerData serverData) {
+        System.out.println("im becoming host!");
+        server = new Server(serverData, false);
+        new Thread(server).start();
     }
 }

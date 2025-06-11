@@ -6,6 +6,7 @@ import global.protocol.Message;
 import global.protocol.central.GetServerRequestMessage;
 import global.protocol.central.ServerFoundMessage;
 import global.protocol.central.ServerNotFoundMessage;
+import global.protocol.central.transfer.ElevateToHostMessage;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -33,10 +34,14 @@ class ServerSharerListener extends AbstractListener {
     @Override
     public void processMessage(Message message) {
         switch (message) {
-            case GetServerRequestMessage serverRequestMessage:
+            case GetServerRequestMessage serverRequestMessage -> {
                 int port = Proxy.getPortByServerName(serverRequestMessage.serverName);
                 send(port == -1 ? new ServerNotFoundMessage() : new ServerFoundMessage(port), connectionData);
-            default:
+            }
+            case ElevateToHostMessage elevateToHostMessage -> {
+                Proxy.giveInstanceNewHost(elevateToHostMessage.serverName, connectionData);
+            }
+            default -> {}
                 // nothing
         }
     }

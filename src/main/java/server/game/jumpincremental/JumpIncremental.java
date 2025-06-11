@@ -35,7 +35,6 @@ public class JumpIncremental extends Game {
             for (PlayerData playerData : players) {
                 playerData.update();
             }
-            System.out.println(players);
             try {
                 Thread.sleep(16);
             } catch (InterruptedException e) {

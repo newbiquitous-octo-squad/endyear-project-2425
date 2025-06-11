@@ -7,10 +7,9 @@ import global.protocol.Message;
 import global.protocol.PingMessage;
 import global.protocol.ServerStartupInfoMessage;
 import global.ServerData;
+import global.protocol.central.transfer.ElevateToHostMessage;
 import global.protocol.game.GameStartedMessage;
-import global.protocol.central.transfer.GameDataMessage;
-import global.protocol.central.transfer.InitiateShutdownMessage;
-import global.protocol.central.transfer.ServerDataMessage;
+import global.protocol.central.transfer.ServerShutdownMessage;
 import proxy.Proxy;
 import server.game.Game;
 import server.game.jumpincremental.JumpIncremental;
@@ -30,18 +29,35 @@ public class Server implements Runnable {
     private ConnectionData proxyConnectionData;
     private ServerListener listener;
 
-    public Server(ServerData serverData) {
+    public Server(ServerData serverData, boolean firstHost) {
         this.serverData = serverData;
         serverData.setServer(this);
+        if (firstHost) {
+            firstHost();
+        } else {
+            newHost();
+        }
+    }
+
+    private void firstHost() {
         try {
             Socket socket = new Socket(Proxy.HOST, Proxy.PORT);
             proxyConnectionData = new ConnectionData(socket);
         } catch (IOException e) {
             System.err.println("Seerver couldn't the be! Why? aaaa");
             e.printStackTrace();
-            System.err.println("More robust logging");
         }
+    }
 
+    private void newHost() {
+        try {
+            Socket socket = new Socket(Proxy.HOST, Proxy.SHARER_PORT);
+            proxyConnectionData = new ConnectionData(socket);
+            Sender.send(new ElevateToHostMessage(serverData.name), proxyConnectionData);
+        } catch (IOException e) {
+            System.err.println("Server couldn't be remade because of: ");
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -76,22 +92,10 @@ public class Server implements Runnable {
     }
 
     public void stop() {
-        Sender.send(new InitiateShutdownMessage(), proxyConnectionData);
-
-//        shutdown();
-    }
-
-    public void sendServerData() {
-        Sender.send(new ServerDataMessage(serverData), proxyConnectionData);
-    }
-
-    public void sendGameData() {
-        Sender.send(new GameDataMessage(selectedGame == null ? null : selectedGame.getGameData()), proxyConnectionData);
-    }
-
-    public void shutdown() {
+        Sender.send(new ServerShutdownMessage(serverData), proxyConnectionData);
         running = false;
         getSelectedGame().stop();
+        listener.close();
     }
 
     public ServerData getServerData() {

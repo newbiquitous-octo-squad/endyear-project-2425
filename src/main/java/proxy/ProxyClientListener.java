@@ -23,11 +23,6 @@ public class ProxyClientListener extends AbstractProxyListener {
         super.send(m, server);
     }
 
-    // Sends the message to all the clients
-//    protected void broadcast(Message m) {
-//        clientList.forEach(client -> send(m, client));
-//    }
-
     @Override
     public void onDisconnect() {
         clientList.remove(connectionData);
