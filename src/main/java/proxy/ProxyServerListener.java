@@ -42,10 +42,6 @@ public class ProxyServerListener extends AbstractProxyListener {
                 System.out.println("Broadcasting message from " + chatMessage.sender);
                 broadcast(chatMessage);
             }
-            case UpdateStateMessage updateStateMessage -> {
-                System.out.println(Arrays.toString(updateStateMessage.data));
-                broadcast(message);
-            }
             default -> broadcast(message);
         }
     }
