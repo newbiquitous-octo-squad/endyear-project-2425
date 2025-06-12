@@ -88,7 +88,8 @@ public class Client {
     }
 
     public void stopServer() {
-        server.stop();
+        if (server != null) server.stop();
+        server = null;
     }
 
     // Like the game stuff (the actual server game windows)
@@ -194,10 +195,7 @@ public class Client {
         });
 
         leaveButton.addActionListener(e -> {
-            sendMessage(new ClientLeaveMessage(username));
-            sendMessage(new GameUnregisterMessage(username));
-            gameFrame.dispose();
-            openMainFrame();
+            leave();
         });
 
         chatInput.addActionListener((ActionEvent e) -> {
@@ -259,8 +257,7 @@ public class Client {
         gameFrame.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-                gameFrame.dispose();
-                openMainFrame();
+                leave();
             }
         });
     }
@@ -439,6 +436,14 @@ public class Client {
             ex.printStackTrace(System.err);
         }
 
-        System.exit(0); //too tired to try and fix this
+        openMainFrame();
+    }
+
+    public void leave() {
+        Sender.send(new ClientLeaveMessage(username), connectionData);
+        Sender.send(new GameUnregisterMessage(username), connectionData);
+        gameFrame.dispose();
+        stopServer();
+        openMainFrame();
     }
 }

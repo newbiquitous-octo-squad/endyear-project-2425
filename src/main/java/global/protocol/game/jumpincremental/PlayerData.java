@@ -11,6 +11,7 @@ public class PlayerData implements Serializable {
     public long score = 0;
     public float x, y, size, velocityX, velocityY = 1;
     public int accelerationX, accelerationY = 1;
+    private volatile transient int jumpBlock = 0;
     public Color color;
 
     public PlayerData(String username) {
@@ -49,6 +50,17 @@ public class PlayerData implements Serializable {
         if (x < 0) {
             x = 0;
         }
+
+        if (jumpBlock > 0) jumpBlock--;
+    }
+
+    public void jump() {
+        if (jumpBlock != 0)
+            return;
+
+        jumpBlock = 25;
+        velocityY = -40;
+        score++;
     }
 
     public PlayerData copy() {
@@ -59,6 +71,7 @@ public class PlayerData implements Serializable {
         out.velocityY = this.velocityY;
         out.score = this.score;
         out.color = this.color;
+        out.jumpBlock = this.jumpBlock;
         return out;
     }
 

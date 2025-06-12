@@ -74,7 +74,7 @@ public class Server implements Runnable {
 
     public void stop() {
         running = false;
-        getSelectedGame().stop();
+        if (getSelectedGame() != null) getSelectedGame().stop();
     }
 
     public ServerData getServerData() {

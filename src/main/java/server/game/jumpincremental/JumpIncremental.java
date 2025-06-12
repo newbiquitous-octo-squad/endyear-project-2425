@@ -70,8 +70,7 @@ public class JumpIncremental extends Game {
                 PlayerData player = players.get(i);
                 if (keyMessage.hasKey('W')) {
                     if (player.y + player.size == FLOOR_HEIGHT) {
-                        player.velocityY = -40;
-                        player.score++;
+                        player.jump();
                     }
                 }
                 player.velocityX = keyMessage.hasKey('A') ? -30 : (keyMessage.hasKey('D') ? 30 : 0);
